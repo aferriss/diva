@@ -1,0 +1,48 @@
+<html>
+<head>
+	<title>Mutant Nights</title>
+	<link rel="stylesheet" type="text/css" href="diva.css">
+
+</head>
+<body>
+	<div id="container">
+		<canvas id="canvas"></canvas>
+	</div>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		varying vec2 v_texCoord;
+		//varying vec3 vecPos;
+		//varying vec3 vecNormal;
+		vec3 newPos;
+		uniform sampler2D u_image;
+		vec4 dv;
+		float dispAmount;
+		void main() {
+
+			v_texCoord = uv;
+			dv = texture2D(u_image, v_texCoord);
+			dispAmount = (dv.r + dv.g + dv.b)/3.0;
+
+			newPos = vec3(normal * dispAmount * -300.0) + position;
+			//vecPos = (modelMatrix * vec4(position, 1.0)).xyz;
+			//vecNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+			gl_Position =  projectionMatrix * modelViewMatrix * vec4( newPos, 1.0 );
+		}
+	</script>
+	<script id="baseShader" type="x-shader/x-fragment">
+		varying vec2 v_texCoord;
+		uniform sampler2D u_image;
+
+		void main(){
+			vec4 fc = texture2D(u_image, v_texCoord);
+			gl_FragColor = vec4(fc.rgb, 0.3);
+		}
+
+	</script>
+
+	<script src="scripts/three.js"></script>
+	<script src="scripts/TessellateModifier.js"></script>
+
+	<script src="scripts/jquery-1.11.2.js"></script>
+	<script src="scripts/mutantNights.js"></script>
+</body>
+</html>
