@@ -17,6 +17,122 @@
 <body>
 	<div id="container"></div>
 	<canvas id="drawCanvas" width="400" height="300"></canvas>
+
+	<script type="x-shader/x-vertex" id="semVert">
+	attribute vec4 tangent;
+
+	uniform vec2 repeat;
+	uniform float useNormal;
+	uniform float useRim;
+
+	varying vec2 vUv;
+	varying vec3 vTangent;
+	varying vec3 vBinormal;
+	varying vec3 vNormal;
+	varying vec3 vEye;
+	varying vec3 vU;
+	varying vec2 vN;
+
+	void main() {
+		vec4 p = vec4(position, 1.0);
+		vU = normalize( vec3( modelViewMatrix * p ) );
+
+		if( useNormal == 0. ) {
+			vec3 n = normalize( normalMatrix * normal );
+
+			vec3 r = reflect( vU, n );
+			float m = 2. * sqrt( 
+        		pow( r.x, 2. ) + 
+       			pow( r.y, 2. ) + 
+        		pow( r.z + 1., 2. ) 
+    		);
+    		vN = r.xy / m + .5;
+		} else {
+			vN = vec2( 0. );
+		}
+
+		vUv = repeat * uv;
+		
+
+		vNormal = normalize( normalMatrix * normal );
+
+		if( useNormal == 1. ) {
+			vTangent = normalize( normalMatrix * tangent.xyz );
+			vBinormal = normalize( cross( vNormal, vTangent ) * tangent.w );
+		} else {
+			vTangent = vec3( 0. );
+			vBinormal = vec3( 0. );
+		}
+
+		if( useRim > 0. ) {
+			vEye = ( modelViewMatrix * vec4( position, 1.0 ) ).xyz;
+		} else {
+			vEye = vec3( 0. );
+		}
+
+		gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	}
+	</script>
+
+
+	<script type="x-shader/x-fragment" id="semFrag">
+	uniform sampler2D tNormal;
+	uniform sampler2D tex;
+	uniform float noise;
+	uniform float useNormal;
+	uniform float useRim;
+	uniform float rimPower;
+	uniform float normalScale;
+	uniform float normalRepeat;
+
+	varying vec2 vUv;
+	varying vec3 vTangent;
+	varying vec3 vBinormal;
+	varying vec3 vNormal;
+	varying vec3 vEye;
+	varying vec3 vU;
+	varying vec2 vN;
+
+	void main() {
+		
+		vec3 finalNormal = vNormal;
+		vec2 calculatedNormal = vN;
+
+		if( useNormal == 1. ) {
+			vec3 normalTex = texture2D( tNormal, vUv * normalRepeat ).xyz * 2.0 - 1.0;
+			normalTex.xy *= normalScale;
+			normalTex.y *= -1.;
+			normalTex = normalize( normalTex );
+			mat3 tsb = mat3( normalize( vTangent ), normalize( vBinormal ), normalize( vNormal ) );
+			finalNormal = tsb * normalTex;
+
+			vec3 r = reflect( vU, normalize( finalNormal ) );
+			float m = 2.0 * sqrt( r.x * r.x + r.y * r.y + ( r.z + 1.0 ) * ( r.z+1.0 ) );
+			calculatedNormal = vec2( r.x / m + 0.5,  r.y / m + 0.5 );
+		}
+
+		vec3 redShift = texture2D(tex, vec2(calculatedNormal.x-0.15, calculatedNormal.y)).rgb;
+		vec3 greenShift = texture2D(tex, vec2(calculatedNormal.x, calculatedNormal.y)).rgb;
+		vec3 blueShift = texture2D(tex, vec2(calculatedNormal.x+0.15, calculatedNormal.y)).rgb;
+
+		vec3 base = vec3(redShift.r, greenShift.g, blueShift.b);//texture2D( tex, calculatedNormal ).rgb;
+		
+		// rim lighting
+
+		if( useRim > 0. ) {
+			float f = rimPower * abs( dot( vNormal, normalize( vEye ) ) );
+			f = useRim * ( 1. - smoothstep( 0.0, 1., f ) );
+	        base += vec3( f );
+	    }
+
+
+		gl_FragColor = vec4( base, 1. );
+
+	}
+
+	</script>
+
+
 	<script src="scripts/clmtrackr.js"></script>
 	<script src="scripts/model_pca_20_svm.js"></script>
 	<script src="scripts/three.js"></script>
