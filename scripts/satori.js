@@ -235,7 +235,7 @@ function onDocumentMouseMove( event ) {
   var mx = ( event.clientX  );
   var my = ( event.clientY  );
 
-  mouseX = map_range(mx, 0,w,3,10);
+  mouseX = map_range(mx, 0,w,3,30);
   mouseY = my;
 
 }
