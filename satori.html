@@ -135,7 +135,7 @@
 	vec4 input0 = texture2D(u_image,v_texCoord);
 
 
-	float step = 2.0;
+	float step = 3.0;
 	float tl = abs(texture2D(u_image, v_texCoord + texelWidth * vec2(-step, -step)).x);   // top left
 	float  l = abs(texture2D(u_image, v_texCoord + texelWidth * vec2(-step,  0.0)).x);   // left
 	float bl = abs(texture2D(u_image, v_texCoord + texelWidth * vec2(-step,  step)).x);   // bottom left
@@ -145,15 +145,18 @@
 	float  r = abs(texture2D(u_image, v_texCoord + texelWidth * vec2( step,  0.0)).x);   // right
 	float br = abs(texture2D(u_image, v_texCoord + texelWidth * vec2( step,  step)).x);   // bottom right
 
-	float mult = 0.01;
+	float mult = 0.005;
 
-	float dX = tr*mult + 2.0*r*mult + br*mult -tl*mult - 2.0*l*mult - bl*mult;
-	float dY = bl*mult + 2.0*b*mult + br*mult -tl*mult - 2.0*t*mult - tr*mult;
+	float blur = (l + t + b + r + tl + tr + bl + br)/8.0;
+
+	float dX = (tr*mult + 2.0*r*mult + br*mult -tl*mult - 2.0*l*mult - bl*mult)*blur;
+	float dY = (bl*mult + 2.0*b*mult + br*mult -tl*mult - 2.0*t*mult - tr*mult)*blur;
+
 
 
 	vec4 diffuseColor = texture2D(u_image, v_texCoord);
 
-	vec3 color = normalize(vec3(dX,dY,1.0/50.0));
+	vec3 color = normalize(vec3(dX,dY,1.0/300.0));
 
 	for( int i = 0; i<4; i++){
 	  color +=color;
@@ -169,7 +172,7 @@
 	vec3 H = normalize(L);
 
 	vec4 lightColor = input0;
-	vec4 ambientColor = vec4(vec3(input0.rgb),1.0);
+	vec4 ambientColor = vec4(vec3(input0.rgb),1.0)*1.0;
 
 	vec3 falloff = vec3(1.0,3.0,20.5);
 
@@ -191,11 +194,11 @@
 	color +=0.5;
 
 	vec4 C = index == 0.0 ? vec4(col, 1.0) : vec4(color, 1.0);
-	C = vec4(vec3(1.0),2.0)-C;
+	//C = vec4(vec3(1.0),2.0)-C;
 	C.b *= 1.5;
 	C.r *= 0.85;
 	C.g *= 0.85;
-	gl_FragColor = C;
+	gl_FragColor = C;//+input0;
 	}
 	</script>
 
