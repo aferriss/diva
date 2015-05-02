@@ -139,7 +139,7 @@ function render(){
 
   renderer.render(scene, camera, sceneTex, true);
   renderer.render(fbScene, orthoCamera, fbTex, true);
-  renderer.render(scene, camera);
+  renderer.render(diffScene, orthoCamera);
 
   window.requestAnimationFrame(render);
 }
