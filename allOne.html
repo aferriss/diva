@@ -1,0 +1,56 @@
+<html>
+<head>
+	<style>
+		body{
+			padding: 0px;
+			margin: 0px;
+		}
+		#drawCanvas{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			//width:400;
+			//height: 300;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<canvas id="drawCanvas" width="400" height="300"></canvas>
+
+	<script id="vertexShader" type="x-shader/x-vertex">
+		varying vec2 v_texCoord;
+
+		void main() {
+
+			v_texCoord = uv;
+		
+			gl_Position =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+	</script>
+
+
+	<script id="passThrough" type="x-shader/x-fragment">
+	uniform sampler2D u_image;
+	uniform float alpha;
+	
+	varying vec2 v_texCoord;
+
+
+	void main() {
+	    vec4 t = texture2D(u_image, v_texCoord);
+	    gl_FragColor = vec4(t.rgb, alpha);
+	}
+	</script>
+
+
+
+
+
+
+
+	<script src="scripts/three.js"></script>
+	<script src="scripts/OrbitControls.js"></script>
+	<script src="scripts/allOne2.js"></script>
+</body>
+</html>
