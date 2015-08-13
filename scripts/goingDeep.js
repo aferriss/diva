@@ -41,10 +41,11 @@ function init(){
 
   shader = new THREE.ShaderMaterial({
     uniforms: {
-      u_image: {type: 't', value: videoTexture },
+      tex: {type: 't', value: videoTexture },
+      time: {type: 'f', value: time}
     },
     vertexShader: document.getElementById('vertexShader').textContent,
-    fragmentShader: document.getElementById('baseShader').textContent,
+    fragmentShader: document.getElementById('kaliShader').textContent,
     wireframe: false,
     transparent: false,
     side: THREE.DoubleSide
@@ -117,9 +118,9 @@ function init(){
 
 
 function render(){
-  time += 0.005;
+  time += 0.025;
   
-  quad.rotation.set(Math.sin(time)*Math.PI/180,0,Math.sin(time)*1.1*Math.PI/180);
+  //quad.rotation.set(Math.sin(time)*Math.PI/180,0,Math.sin(time)*1.1*Math.PI/180);
   //quad.position.z += 0.01;
   //box.position.x = Math.sin(time*10)*300;
   //box.position.y = Math.sin(time*8)*300;
@@ -130,16 +131,17 @@ function render(){
     }
   }
 
-  shader.uniforms.u_image.value = videoTexture;
+  shader.uniforms.tex.value = videoTexture;
+  shader.uniforms.time.value = time;
   //render diff scene to tex
-  renderer.render(diffScene, orthoCamera, tex, true);
+  //renderer.render(diffScene, orthoCamera, tex, true);
   //capture previous frame
-  renderer.render(camScene, orthoCamera, prevFrame, true);
+  //renderer.render(camScene, orthoCamera, prevFrame, true);
   ////////////////////////////////////////////////////////
 
-  renderer.render(scene, camera, sceneTex, true);
-  renderer.render(fbScene, orthoCamera, fbTex, true);
-  renderer.render(diffScene, orthoCamera);
+  //renderer.render(scene, camera, sceneTex, true);
+  //renderer.render(fbScene, orthoCamera, fbTex, true);
+  renderer.render(camScene, orthoCamera);
 
   window.requestAnimationFrame(render);
 }

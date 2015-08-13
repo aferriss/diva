@@ -1,3 +1,4 @@
+
 <html>
 <head>
 	<title>Going Deep</title>
@@ -123,6 +124,30 @@
 			}
 			gl_FragColor = vec4(rgb, 1.0);
 		}
+
+	</script>
+
+	<script id="kaliShader" type="x-shader/x-fragment">
+	varying vec2 v_texCoord;
+	uniform sampler2D tex;
+	uniform float time;
+	
+	vec3 Kali( vec3 v , vec3 s ){
+	    for( int i = 0; i < 10 ; i ++){   
+	        v=abs(v)/dot(v,v)+s;
+	    }
+	    return v;
+	}
+	
+	void main(){
+		vec3 colA = texture2D(tex, v_texCoord).xyz;
+		vec2 uv = v_texCoord;
+		float avg = dot(vec3(1.0), colA) / 3.0;
+		//vec3 kali3 = Kali( vec3( -uv.x, -uv.y, (mod(time*0.025,1.0) )), vec3(-abs(colA.rgb)));
+		vec3 kali3 = Kali( vec3( 0.5-uv.x, 0.5-uv.y, (mod(time*0.025,1.0) )), vec3(-abs(avg)));
+
+		gl_FragColor = avg >0.5 ? vec4( (normalize(  kali3 )   ),1.0) :1.0- (vec4(normalize(kali3), 1.0));
+	}
 
 	</script>
 	

@@ -36,7 +36,7 @@
 
 			varying vec2 vUv;
 
-			vec4 zoom = vec4(1.01,1.01,1.0,1.0);
+			vec4 zoom = vec4(1.0025,1.0025,1.0,1.0);
 
 			void main() {
 				vUv = uv;
@@ -173,7 +173,7 @@
 				hsv.r += 0.001;
 				hsv.r = mod(hsv.r, 1.0);
 
-				hsv.g += 0.01;
+				hsv.g += 0.005;
 				hsv.g = mod(hsv.g, 1.0);
 
 				//hsv.b += 0.001;
