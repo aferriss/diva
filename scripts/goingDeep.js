@@ -12,6 +12,8 @@ var container, scene, camScene, diffScene, fbScene, renderer, camera, orthoCamer
 var sheets = [];
 var mouseX, mouseY;
 var box, quad;
+var diffTex, adds, addsRtt;
+var diffRttScene, afterDiffScene;
 
 function init(){
   initWebcam();
@@ -20,6 +22,8 @@ function init(){
   camScene = new THREE.Scene();
   diffScene = new THREE.Scene();
   fbScene = new THREE.Scene();
+  diffRttScene = new THREE.Scene();
+  afterDiffScene = new THREE.Scene();
 
   orthoCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
   camera = new THREE.PerspectiveCamera(45, w/h, 0.1,40000);
@@ -29,11 +33,17 @@ function init(){
   camScene.add(orthoCamera);
   diffScene.add(orthoCamera);
   fbScene.add(orthoCamera);
+  diffRttScene.add(orthoCamera);
+  afterDiffScene.add(orthoCamera);
+
 
   tex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   prevFrame = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   sceneTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   fbTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  diffTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  adds = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  addsRtt = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
 
   videoTexture = new THREE.Texture( video );
@@ -55,9 +65,10 @@ function init(){
   diffShader = new THREE.ShaderMaterial({
     uniforms: {
       prevFrame: {type: 't', value: prevFrame },
-      videoTexture: {type: 't', value: videoTexture },
+      videoTexture: {type: 't', value: diffTex },
+      fbTex: {type: 't', value: addsRtt }
     },
-    vertexShader: document.getElementById('vertexShader').textContent,
+    vertexShader: document.getElementById('vertZoom').textContent,
     fragmentShader: document.getElementById('diffFs').textContent
   });
 
@@ -82,6 +93,14 @@ function init(){
   //the differencing scene
   quad = new THREE.Mesh(screenGeometry, diffShader);
   diffScene.add(quad);
+
+  var diffMat = new THREE.MeshBasicMaterial({map: diffTex});
+  quad = new THREE.Mesh(screenGeometry, diffMat);
+  diffRttScene.add(quad);
+
+  var afterDiffMat = new THREE.MeshBasicMaterial({map: adds});
+  quad = new THREE.Mesh(screenGeometry, afterDiffMat);
+  afterDiffScene.add(quad);
 
   ////////////////////////////////////////////////////////////////
 
@@ -138,10 +157,15 @@ function render(){
   //capture previous frame
   //renderer.render(camScene, orthoCamera, prevFrame, true);
   ////////////////////////////////////////////////////////
-
+  renderer.render(diffRttScene, orthoCamera, prevFrame);
   //renderer.render(scene, camera, sceneTex, true);
   //renderer.render(fbScene, orthoCamera, fbTex, true);
-  renderer.render(camScene, orthoCamera);
+  renderer.render(camScene, orthoCamera, diffTex, true);
+  //renderer.render(diffRttScene, orthoCamera);
+  renderer.render(diffScene, orthoCamera, adds);
+  renderer.render(afterDiffScene, orthoCamera, addsRtt);
+
+  renderer.render(diffScene, orthoCamera);
 
   window.requestAnimationFrame(render);
 }
