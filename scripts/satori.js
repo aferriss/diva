@@ -18,7 +18,7 @@ var modelLoaded = false;
 var semShader;
 var randVals = [];
 var textureArray = [];
-var maxSize = 360;
+var maxSize = 2;
 var redIndex = 0;
 var greenIndex = maxSize/3;
 var blueIndex = (maxSize/3)*2;
@@ -49,7 +49,7 @@ function init(){
   sepTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   normalTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
-  var screenGeometry = new THREE.PlaneGeometry(w, h);
+  var screenGeometry = new THREE.PlaneGeometry(w+200, h+200);
   planeMaterial = new THREE.MeshBasicMaterial({map:videoTexture});
   var basicMat = new THREE.MeshPhongMaterial({color:0xffffff});
 
@@ -69,7 +69,8 @@ function init(){
     uniforms:{
       u_image: { type: 't', value: sepTex},
       inc: {type: 'f', value: 0},
-      time: {type: 'f', value: 0}
+      time: {type: 'f', value: 0},
+      res: {type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight )}
     },
     vertexShader: document.getElementById('vertexShader').textContent,
     fragmentShader: document.getElementById('fs2').textContent
@@ -235,7 +236,7 @@ function onDocumentMouseMove( event ) {
   var mx = ( event.clientX  );
   var my = ( event.clientY  );
 
-  mouseX = map_range(mx, 0,w,3,30);
+  mouseX = map_range(mx, 0,w,3,10);
   mouseY = my;
 
 }

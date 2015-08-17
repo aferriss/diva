@@ -14,6 +14,10 @@ var mouseX, mouseY;
 var box, quad;
 var diffTex, adds, addsRtt;
 var diffRttScene, afterDiffScene;
+var glowShader, blurHShader, blurVShader, bloomShader;
+var blurHTex, blurVTex;
+var blurHScene, blurVScene, bloomScene;
+var glowTex;
 
 function init(){
   initWebcam();
@@ -24,6 +28,9 @@ function init(){
   fbScene = new THREE.Scene();
   diffRttScene = new THREE.Scene();
   afterDiffScene = new THREE.Scene();
+  blurHScene = new THREE.Scene();
+  blurVScene = new THREE.Scene();
+  bloomScene = new THREE.Scene();
 
   orthoCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
   camera = new THREE.PerspectiveCamera(45, w/h, 0.1,40000);
@@ -35,6 +42,9 @@ function init(){
   fbScene.add(orthoCamera);
   diffRttScene.add(orthoCamera);
   afterDiffScene.add(orthoCamera);
+  blurHScene.add(orthoCamera);
+  blurVScene.add(orthoCamera);
+  bloomScene.add(orthoCamera);
 
 
   tex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
@@ -44,6 +54,9 @@ function init(){
   diffTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   adds = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   addsRtt = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  blurHTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  blurVTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  glowTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
 
   videoTexture = new THREE.Texture( video );
@@ -82,14 +95,66 @@ function init(){
   });
 
 
+  glowShader = new THREE.ShaderMaterial({
+    uniforms:{
+      srcTex: {type: 't', value: videoTexture},
+      step: {type: 'v2', value: new THREE.Vector2(30.0/window.innerWidth, 30.0/window.innerHeight)},
+      time: {type: 'f', value: time }
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('glowFrag').textContent
+  });
+
+
+  blurHShader = new THREE.ShaderMaterial({
+    uniforms:{
+      srcTex: {type: 't', value: glowTex},
+      step: {type: 'v2', value: new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight)}
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('blurH').textContent
+  });
+
+
+  blurVShader = new THREE.ShaderMaterial({
+    uniforms:{
+      srcTex: {type: 't', value: blurHTex},
+      step: {type: 'v2', value: new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight)}
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('blurV').textContent
+  });
+
+
+  bloomShader = new THREE.ShaderMaterial({
+    uniforms:{
+      srcTex: {type: 't', value: videoTexture},
+      blurTex: {type: 't', value: blurVTex}
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('bloom').textContent
+  });
+
+
   var screenGeometry = new THREE.PlaneGeometry(w, h);
 
   var planeMaterial = new THREE.MeshBasicMaterial({map:tex});
 
   //just the video tex
-  quad = new THREE.Mesh(screenGeometry, shader);
+  quad = new THREE.Mesh(screenGeometry, glowShader);
   camScene.add(quad);
 
+
+  quad = new THREE.Mesh(screenGeometry, blurHShader);
+  blurHScene.add(quad);
+
+  quad = new THREE.Mesh(screenGeometry, blurVShader);
+  blurVScene.add(quad);
+
+  quad = new THREE.Mesh(screenGeometry, bloomShader);
+  bloomScene.add(quad);
+
+  /*
   //the differencing scene
   quad = new THREE.Mesh(screenGeometry, diffShader);
   diffScene.add(quad);
@@ -113,8 +178,10 @@ function init(){
   var planeMaterial2 = new THREE.MeshBasicMaterial({map:fbTex});
   quad = new THREE.Mesh(screenGeometry, fbShader);
   quad.position.set(0,0,-915);
+  */
 
-  
+
+  /*
   var boxGeo = new THREE.BoxGeometry(100,100,100);
   var colorMat = new THREE.MeshBasicMaterial({color: 0x888888});
   box = new THREE.Mesh(screenGeometry, planeMaterial);
@@ -123,6 +190,7 @@ function init(){
   box.rotation.set(0,0,0);
   scene.add(box);
   scene.add(quad);
+  */
 
   renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer:false, alpha: true, antialias:true});
   renderer.setSize(w, h);
@@ -152,11 +220,16 @@ function render(){
 
   shader.uniforms.tex.value = videoTexture;
   shader.uniforms.time.value = time;
+
+  glowShader.uniforms.srcTex.value = videoTexture;
+  glowShader.uniforms.time.value = time;
+
   //render diff scene to tex
   //renderer.render(diffScene, orthoCamera, tex, true);
   //capture previous frame
   //renderer.render(camScene, orthoCamera, prevFrame, true);
   ////////////////////////////////////////////////////////
+  /*
   renderer.render(diffRttScene, orthoCamera, prevFrame);
   //renderer.render(scene, camera, sceneTex, true);
   //renderer.render(fbScene, orthoCamera, fbTex, true);
@@ -166,6 +239,34 @@ function render(){
   renderer.render(afterDiffScene, orthoCamera, addsRtt);
 
   renderer.render(diffScene, orthoCamera);
+  */
+
+  blurHShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
+  blurVShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
+
+  renderer.render(camScene, orthoCamera, glowTex);
+
+  blurHShader.uniforms.srcTex.value = glowTex;
+
+  renderer.render(blurHScene, orthoCamera, blurHTex);
+  renderer.render(blurVScene, orthoCamera, blurVTex);
+
+  blurHShader.uniforms.srcTex.value = blurVTex;
+
+  blurHShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
+  blurVShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
+
+
+  for(var i = 0; i<3; i++){
+    renderer.render(blurHScene, orthoCamera, blurHTex);
+    renderer.render(blurVScene, orthoCamera, blurVTex);
+  }
+//renderer.render(blurVScene, orthoCamera);
+
+  renderer.render(bloomScene, orthoCamera);
+
+
+
 
   window.requestAnimationFrame(render);
 }
