@@ -29,7 +29,7 @@ var randVals = [];
 
 
 function startTracker(){
-  var ctracker = new clm.tracker({});
+  var ctracker = new clm.tracker({scoreThreshold: 0.30});
   ctracker.init(pModel);
   ctracker.start(video);
 
@@ -39,7 +39,7 @@ function startTracker(){
 
   function drawFrame(){
     cc.clearRect(0,0,canvasInput.width, canvasInput.height);
-    ctracker.draw(canvasInput);
+    //ctracker.draw(canvasInput);
     
     if(updatePos){
     var positions = ctracker.getCurrentPosition();
@@ -156,10 +156,15 @@ function init(){
 }
 
 
+function dist(x1, y1, x2, y2){
+  var d = Math.sqrt( (x2-=x1)*x2 + (y2-=y1)*y2 );
+  return d;
+}
+
 function render(){
   time += 0.05;
 
-  if(leftEyeTracked != undefined){
+  if(leftEyeTracked != undefined && dist(noseMiddle[0] - w/2, noseMiddle[1] + h/2, w/2, h/2) < 300  && dist(chinBottom[0] - w/2, chinBottom[1]+h/2, noseTop[0] - w/2, noseTop[1] + h/2) > 50 ){
     /*
     leCube.position.set(leftEyeTracked[0] - w/2, -leftEyeTracked[1] + h/2, 0);
     reCube.position.set(rightEyeTracked[0] - w/2, -rightEyeTracked[1] + h/2, 0);
@@ -176,26 +181,53 @@ function render(){
       }
 
       crystals[0].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2, 0);
-      crystals[1].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2, 0);
+      crystals[6].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 25, 0);
+      crystals[7].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 45, 0);
+      crystals[8].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 55, 0);
+
       crystals[2].position.set(leftHighCheek[0] - w/2, -leftHighCheek[1] + h/2, 0);
+      crystals[12].position.set(leftHighCheek[0] - w/2, -leftHighCheek[1] + h/2 - 10, 0);
+      crystals[13].position.set(leftHighCheek[0] - w/2, -leftHighCheek[1] + h/2 -20, 0);
+      crystals[14].position.set(leftHighCheek[0] - w/2, -leftHighCheek[1] + h/2 -30, 0);
+
+      crystals[4].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 , 0);
+      crystals[15].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 -10, 0);
+      crystals[16].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 - 20, 0);
+      crystals[17].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 - 30, 0);
+
+
+
+      crystals[1].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2, 0);
+      crystals[9].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2 -25, 0);
+      crystals[10].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2 -45, 0);
+      crystals[11].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2 -55, 0);
+
+
       crystals[3].position.set(rightHighCheek[0] - w/2, -rightHighCheek[1] + h/2, 0);
-      crystals[4].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2, 0);
+      crystals[18].position.set(rightHighCheek[0] - w/2, -rightHighCheek[1] + h/2 -10, 0);
+      crystals[19].position.set(rightHighCheek[0] - w/2, -rightHighCheek[1] + h/2 -20, 0);
+      crystals[20].position.set(rightHighCheek[0] - w/2, -rightHighCheek[1] + h/2 -30, 0);
+
       crystals[5].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2, 0);
+      crystals[21].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -10, 0);
+      crystals[22].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -20, 0);
+      crystals[23].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -30, 0);
     }
 
     if(diamondLoaded){
       for (var i = 0 ; i<diamonds.length; i++){
-        diamonds[i].rotation.z = time*0.5;
+        //diamonds[i].rotation.z = -90 * Math.PI / 180;
         diamonds[i].rotation.y = time*0.5;
       }
 
-      diamonds[0].position.set(leftEyeTracked[0] - w/2, -leftEyeTracked[1] + h/2, 0); // left eye
+      
       
       //nose diamonds
       diamonds[1].position.set(noseMiddle[0] - w/2, -noseMiddle[1] + h/2 + 0, 0); 
       diamonds[2].position.set(noseMiddle[0] - w/2, (-noseMiddle[1] + -noseBottom[1])/2 + h/2, 0); 
       diamonds[3].position.set(noseTop[0] - w/2, (-noseMiddle[1] + -noseTop[1])/2 + h/2, 0); 
       diamonds[4].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 , 0); 
+      diamonds[0].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 + 30 , 0); 
 
       //brows
       diamonds[5].position.set(leftBrowInner[0] - w/2, -leftBrowInner[1] + h/2 , 0); 
@@ -257,7 +289,7 @@ function loadCrystal(){
     result.computeMorphNormals();
     result.computeTangents();
     
-    for( var i = 0; i<6; i++){
+    for( var i = 0; i<24; i++){
       crystal = new THREE.Mesh(result, semShader);
       crystal.scale.set(30,30,30);
       camScene.add(crystal);
@@ -269,6 +301,26 @@ function loadCrystal(){
     crystals[3].scale.set(10,10,10);
     crystals[4].scale.set(20,20,20);
     crystals[5].scale.set(20,20,20);
+    crystals[6].scale.set(20,20,20);
+    crystals[7].scale.set(10,10,10);
+    crystals[8].scale.set(5,5,5);
+    crystals[9].scale.set(20,20,20);
+    crystals[10].scale.set(10,10,10);
+    crystals[11].scale.set(5,5,5);
+
+    crystals[12].scale.set(5,5,5);
+    crystals[13].scale.set(5,5,5);
+    crystals[14].scale.set(5,5,5);
+    crystals[15].scale.set(5,5,5);
+    crystals[16].scale.set(5,5,5);
+    crystals[17].scale.set(5,5,5);
+    crystals[18].scale.set(5,5,5);
+    crystals[19].scale.set(5,5,5);
+    crystals[20].scale.set(5,5,5);
+    crystals[21].scale.set(5,5,5);
+    crystals[22].scale.set(5,5,5);
+    crystals[23].scale.set(5,5,5);
+
     modelLoaded = true;
   });
 }
@@ -285,7 +337,7 @@ function loadDiamonds(){
     result.computeVertexNormals();
     result.computeMorphNormals();
     result.computeTangents();
-    for( var i = 0; i< 27; i++){
+    for( var i = 0; i< 37; i++){
       diamond = new THREE.Mesh( result, semShader);
       diamond.rotation.x = -90 * Math.PI/180;
       diamond.scale.set(1.35,1.35,1.35);
@@ -304,7 +356,7 @@ function loadDiamonds(){
 
     //under mouth
     diamonds[18].scale.set(2,2,2);
-    diamonds[19].scale.set(3,3,3);
+    diamonds[19].scale.set(3,10,3);
 
     //eye far edges
     diamonds[21].scale.set(2,2,2);
@@ -358,14 +410,16 @@ function onDocumentMouseMove( event ) {
 
 function onWindowResize() {
 
-  //w = window.innerWidth;
-  //h = window.innerHeight;
+  w = window.innerWidth;
+  h = window.innerHeight;
 
-  //camera.aspect = window.innerWidth / window.innerHeight;
-  //camera.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
+  //canvasInput.width = w;
+  //canvasInput.height = h;
 
-  //renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 

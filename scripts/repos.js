@@ -14,6 +14,11 @@ var plane, skyBox;
 var shader, diffShader, fbShader, blurShader, shader2;
 var tex, fbTex, sceneTex, prevFrame; 
 var videoTexture, videoImage, videoImageContext;
+var webcam = document.createElement('video');
+webcam.width = w;
+webcam.height = h;
+var webcamTexture;
+
 var sheets = [];
 var mouseX, mouseY;
 var box, quad;
@@ -32,18 +37,20 @@ var planeMaterial;
 var combineShader, fs2;
 var sepTex;
 var inc = 0;
-var pastFrame;
+var pastFrame, pastWebcam;
 var reposShader;
 var diffShader;
 var colorShader;
 
 
-var scene1, scene2, scene3, scene4, scene5;
+var scene1, scene2, scene3, scene4, scene5, webScene;
 
 var rtt, tex1, tex2, tex3, diffTex;
 
 
 function init(){
+  initWebcam();
+
   video = document.createElement( 'video');
   video.src = "images/allOne.mp4";
   video.load();
@@ -55,8 +62,14 @@ function init(){
   videoImage.height = 720;
 
   videoImageContext = videoImage.getContext('2d');
+
+  webcamTexture = new THREE.Texture(webcam);
+
+
   
   camScene = new THREE.Scene();
+  webScene = new THREE.Scene();
+
   sepScene = new THREE.Scene();
   scene1 = new THREE.Scene();
   scene2 = new THREE.Scene();
@@ -69,6 +82,7 @@ function init(){
 
   camScene.add(orthoCamera);
   sepScene.add(camera);
+  webScene.add(orthoCamera);
 
   scene1.add(orthoCamera);
   scene2.add(orthoCamera);
@@ -82,6 +96,8 @@ function init(){
 
   sepTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   pastFrame = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  pastWebcam = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+
   tex1 = new THREE.WebGLRenderTarget( w,h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   tex2 = new THREE.WebGLRenderTarget( w,h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   tex3 = new THREE.WebGLRenderTarget( w,h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
@@ -94,6 +110,8 @@ function init(){
   diffShader = new THREE.ShaderMaterial({
     uniforms:{
       u_image: {type: 't', value: videoTexture},
+      webcamImage: {type: 't', value: webcamTexture},
+      pastWebcam: {type: 't', value: pastWebcam},
       pastFrame: {type: 't', value: pastFrame },
       fbTex: {type: 't', value: tex1 }
     },
@@ -136,6 +154,10 @@ function init(){
   planeMaterial = new THREE.MeshBasicMaterial({map:videoTexture});
   quad = new THREE.Mesh(screenGeometry, planeMaterial);
   camScene.add(quad);
+
+  var webCamMat = new THREE.MeshBasicMaterial({map:webcamTexture});
+  var wquad = new THREE.Mesh(screenGeometry, webCamMat);
+  webScene.add(wquad);
 
   quad = new THREE.Mesh(screenGeometry, reposShader);
   scene1.add(quad);
@@ -186,6 +208,11 @@ function render(){
     }
   }
 
+  if(webcam.readyState === webcam.HAVE_ENOUGH_DATA){
+    if(webcamTexture){
+      webcamTexture.needsUpdate = true;
+    }
+  }
   
   controls.update();
 
@@ -195,6 +222,8 @@ function render(){
   
   renderer.render(sepScene, orthoCamera, diffTex, true);
   renderer.render(camScene, orthoCamera, pastFrame, true);
+  
+
   renderer.render(scene4, orthoCamera, tex3, true);
 
   //renderer.render(scene4, orthoCamera);
@@ -204,6 +233,8 @@ function render(){
   //renderer.render(scene2, orthoCamera);
 
   renderer.render(scene5, orthoCamera);
+
+  renderer.render(webScene, orthoCamera, pastWebcam, true);
   
   window.requestAnimationFrame(render);
 }
@@ -218,16 +249,52 @@ function onDocumentMouseMove( event ) {
 
 function onWindowResize() {
 
-  //w = window.innerWidth;
-  //h = window.innerHeight;
+  w = window.innerWidth;
+  h = window.innerHeight;
 
-  //camera.aspect = window.innerWidth / window.innerHeight;
-  //camera.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
 
-  //renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
+
+function initWebcam(){
+  window.addEventListener('DOMContentLoaded', function(){
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+ 
+    if (navigator.getUserMedia) {       
+        navigator.getUserMedia({video: true, audio: false}, handleVideo, videoError);
+    }
+ 
+    function handleVideo(stream) {
+      var url = window.URL || window.webkitURL;
+       webcam.src = url ? url.createObjectURL(stream) : stream;
+        webcam.play();
+        videoLoaded = true;
+
+        var soundFile = document.createElement("audio");
+        soundFile.preload = "auto";
+        var sndSrc = document.createElement("source");
+        sndSrc.src = "tracks/allOne.mp3";
+        soundFile.appendChild(sndSrc);
+
+        soundFile.load();
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
+        
+    }
+ 
+    function videoError(e) {
+      alert('Error' + error.code);
+    }
+  });
+}
+
+
 
 init();
 

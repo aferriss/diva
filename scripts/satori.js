@@ -244,14 +244,14 @@ function onDocumentMouseMove( event ) {
 
 function onWindowResize() {
 
-  //w = window.innerWidth;
-  //h = window.innerHeight;
+  w = window.innerWidth;
+  h = window.innerHeight;
 
-  //camera.aspect = window.innerWidth / window.innerHeight;
-  //camera.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
 
-  //renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
@@ -271,6 +271,18 @@ function initWebcam(){
        video.src = url ? url.createObjectURL(stream) : stream;
         video.play();
         videoLoaded = true;
+
+        var soundFile = document.createElement("audio");
+        soundFile.preload = "auto";
+        var sndSrc = document.createElement("source");
+        sndSrc.src = "tracks/satori.mp3";
+        soundFile.appendChild(sndSrc);
+
+        soundFile.load();
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
         
     }
  

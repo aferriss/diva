@@ -114,6 +114,19 @@ init();
         video.play();
         //video.src = window.URL.createObjectURL(stream);
         videoLoaded = true;
+
+        var soundFile = document.createElement("audio");
+        soundFile.preload = "auto";
+        var sndSrc = document.createElement("source");
+        sndSrc.src = "tracks/infiniteGradient.mp3";
+        soundFile.appendChild(sndSrc);
+
+        soundFile.load();
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
+
     }
  
     function videoError(e) {

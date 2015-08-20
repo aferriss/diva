@@ -236,6 +236,18 @@ function initWebcam(){
        video.src = url ? url.createObjectURL(stream) : stream;
         video.play();
         videoLoaded = true;
+
+        var soundFile = document.createElement("audio");
+        soundFile.preload = "auto";
+        var sndSrc = document.createElement("source");
+        sndSrc.src = "tracks/lite.mp3";
+        soundFile.appendChild(sndSrc);
+
+        soundFile.load();
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
         
     }
  

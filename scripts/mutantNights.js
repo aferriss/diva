@@ -17,7 +17,6 @@ function init(){
   screenScene = new THREE.Scene();
   thirdScene = new THREE.Scene();
 
-
   screenCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
   camera = new THREE.PerspectiveCamera(45, w/h, 0.1,40000);
   camera.position.set(0,0,10);
@@ -91,7 +90,7 @@ function init(){
 
  // for(var i = 0; i<3; i++){
     var quad = new THREE.Mesh(screenGeometry, shader);
-    quad.position.set(0,-30,-350);
+    quad.position.set(0,0,-350);
     scene.add(quad);
   //  sheets.push(quad);
   //}
@@ -178,6 +177,18 @@ init();
         video.play();
         //video.src = window.URL.createObjectURL(stream);
         videoLoaded = true;
+
+        var soundFile = document.createElement("audio");
+        soundFile.preload = "auto";
+        var sndSrc = document.createElement("source");
+        sndSrc.src = "tracks/mutantNights.mp3";
+        soundFile.appendChild(sndSrc);
+
+        soundFile.load();
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
     }
  
     function videoError(e) {

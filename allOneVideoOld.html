@@ -1,0 +1,115 @@
+<html>
+<head>
+	<style>
+		body{
+			padding: 0px;
+			margin: 0px;
+		}
+		#drawCanvas{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			//width:400;
+			//height: 300;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+		<source src="images/allOne.mp4" type="video/mp4">
+	</video>
+	<canvas id="drawCanvas" width="400" height="300"></canvas>
+
+	<script id="vertexShader" type="x-shader/x-vertex">
+		varying vec2 v_texCoord;
+
+		void main() {
+
+			v_texCoord = uv;
+		
+			gl_Position =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+	</script>
+
+
+	<script id="passThrough" type="x-shader/x-fragment">
+
+	/*
+	uniform sampler2D u_image;
+	uniform sampler2D pastFrame;
+	uniform float alpha;
+	
+	varying vec2 v_texCoord;
+
+
+	void main() {
+	    vec4 t = texture2D(u_image, v_texCoord);
+	    vec4 past = texture2D(pastFrame, v_texCoord);
+
+	    vec3 diff = past.rgb - t.rgb;
+	    //diff*= diff;
+
+	    float avg = dot(diff.rgb, vec3(1.0))*255.0;
+
+
+
+	    if ( avg < 40.0 ) {
+	    	//t.a = 0.0;
+	    }
+
+	    gl_FragColor = vec4(vec3(1.0) - t.rgb, 1.0);
+	}
+
+	*/
+
+
+ 
+ varying vec2 v_texCoord;
+ 
+ uniform vec3 colorToReplace;
+ uniform sampler2D u_image;
+ uniform sampler2D inputImageTexture2;
+ 
+ void main(){
+ 	vec3 colorToReplace = vec3(0.7,0.06,0.17);
+ 	float smoothing = 0.22;
+ 	float thresholdSensitivity = 0.03;
+
+	vec2 textureCoordinate = v_texCoord;
+	vec4 textureColor = texture2D(u_image, textureCoordinate);
+
+	float maskY = 0.2989 * colorToReplace.r + 0.5866 * colorToReplace.g + 0.1145 * colorToReplace.b;
+	float maskCr = 0.7132 * (colorToReplace.r - maskY);
+	float maskCb = 0.5647 * (colorToReplace.b - maskY);
+
+	float Y = 0.2989 * textureColor.r + 0.5866 * textureColor.g + 0.1145 * textureColor.b;
+	float Cr = 0.7132 * (textureColor.r - Y);
+	float Cb = 0.5647 * (textureColor.b - Y);
+
+	//     float blendValue = 1.0 - smoothstep(thresholdSensitivity - smoothing, thresholdSensitivity , abs(Cr - maskCr) + abs(Cb - maskCb));
+	float blendValue = smoothstep(thresholdSensitivity, thresholdSensitivity + smoothing, distance(vec2(Cr, Cb), vec2(maskCr, maskCb)));
+
+	vec4 fc =  vec4(textureColor.rgb, textureColor.a * blendValue);
+
+	float avg = dot(fc.rgb, vec3(1.0))/3.0;
+
+	if(fc.a < 0.5 ){
+		fc.a = 1.0;
+		fc.rgb = vec3(textureCoordinate.x, 1.0, textureCoordinate.y);
+	}
+	gl_FragColor = fc;
+ }
+
+	</script>
+
+
+
+
+
+
+
+	<script src="scripts/three.js"></script>
+	<script src="scripts/OrbitControls.js"></script>
+	<script src="scripts/allOneVideo.js"></script>
+</body>
+</html>
