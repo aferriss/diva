@@ -44,6 +44,14 @@ video.height = h;
 var petalCanvas, petalCanvasCtx;
 var petals = [];
 
+var soundFile = document.createElement("audio");
+soundFile.preload = "auto";
+var sndSrc = document.createElement("source");
+sndSrc.src = "tracks/blessed.mp3";
+soundFile.appendChild(sndSrc);
+
+soundFile.load();
+
 var numPetals = 6;
 var numP = 1000;
 
@@ -460,6 +468,12 @@ function initWebcam(){
        video.src = url ? url.createObjectURL(stream) : stream;
         video.play();
         videoLoaded = true;
+
+
+        soundFile.play();
+
+        var webcamMsg = document.getElementById("enableWebcam");
+        webcamMsg.style.display = "none";
         
     }
  
