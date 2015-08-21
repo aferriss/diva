@@ -36,25 +36,52 @@ var diffShader;
 var colorShader;
 var scene1, scene2, scene3, scene4, scene5;
 var rtt, tex1, tex2, tex3, diffTex;
+var leftEye, rightEye;
 
 var video = document.createElement('video');
+video.width = w;
+video.height = h;
 var petalCanvas, petalCanvasCtx;
 var petals = [];
 
 var numPetals = 6;
-var numP = 300;
+var numP = 1000;
 
 window.addEventListener( 'resize', onWindowResize, false );
 
+function startTracker(){
+  //smaller makes er faster!
+  video.width = window.innerWidth /4;
+  video.height = window.innerHeight /4;
+  var cTracker = new clm.tracker({});
+  cTracker.init(pModel);
+  cTracker.start(video);
+
+  function drawFrame(){
+    if(updatePos){
+      var positions = cTracker.getCurrentPosition();
+
+      leftEye = positions[27];
+      rightEye = positions[32];
+
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+}
+
+var scaleBy = 4;
 
 function Petal(fileName, posX, posY){
   this.posX = posX;
   this.posY = posY;
-  this.size = 10 + Math.random()*50;
+  this.size = 10 + Math.random()*15;
   this.fileName = fileName;
   this.img = new Image();
-  this.speed =  Math.random()*1;
-  this.xSpeed = (Math.random()) - 0.5; 
+  this.speed =  Math.random()*15 - 7.5;
+  this.xSpeed = (Math.random()*15) - 7.5; 
 }
 
 Petal.prototype.loadImage = function(){
@@ -66,18 +93,75 @@ Petal.prototype.loadImage = function(){
 Petal.prototype.update = function(){
   this.posY += this.speed;
   this.posX += this.xSpeed;
-  if(this.posX > petalCanvas.width){
-    this.posX = -60;
+
+  var pickOne = Math.random();
+  
+  var eyeDist = 1;
+  if(leftEye != undefined){
+    eyeDist = dist(leftEye[0], leftEye[1], rightEye[0], rightEye[1]);
+  }
+  if(this.posX > petalCanvas.width+60){
+    if(leftEye != undefined && updatePos && dist(leftEye[0], leftEye[1], w/2, h/2) < w/2 && eyeDist > 10){
+      if(pickOne <0.5){
+        this.posX = leftEye[0]*scaleBy ;
+        this.posY = leftEye[1]*scaleBy ;
+      } else if(pickOne >=0.5){
+        this.posX = rightEye[0]*scaleBy ;
+        this.posY = rightEye[1]*scaleBy ;
+      }
+    } else{
+      this.posX = -60;
+    }
   }
 
-  if(this.posX < 0 - 60){
-    this.posX = petalCanvas.width;
+  if(this.posX < -60){
+     if(leftEye != undefined && updatePos && dist(leftEye[0], leftEye[1], w/2, h/2) < w/2  && eyeDist > 10){
+      if(pickOne <0.5){
+        this.posX = leftEye[0]*scaleBy ;
+        this.posY = leftEye[1]*scaleBy ;
+      } else if(pickOne >=0.5){
+        this.posX = rightEye[0]*scaleBy ;
+        this.posY = rightEye[1]*scaleBy ;
+      }
+    } else{
+      this.posX = petalCanvas.width +59;
+    }
   }
 
   if(this.posY > petalCanvas.height+60){
+    if(leftEye != undefined && updatePos && dist(leftEye[0], leftEye[1], w/2, h/2) < w/2  && eyeDist > 10){
+      if(pickOne <0.5){
+        this.posX = leftEye[0]*scaleBy ;
+        this.posY = leftEye[1]*scaleBy ;
+      } else if(pickOne >=0.5){
+        this.posX = rightEye[0]*scaleBy ;
+        this.posY = rightEye[1] *scaleBy;
+      }
+      
+    } else{
     this.posY = -60;
     this.posX = Math.random()*petalCanvas.width;
+    }
+    
   }
+
+  if(this.posY < -60){
+    if(leftEye != undefined && updatePos && dist(leftEye[0], leftEye[1], w/2, h/2) < w/2  && eyeDist > 10){
+      if(pickOne <0.5){
+        this.posX = leftEye[0]*scaleBy ;
+        this.posY = leftEye[1]*scaleBy ;
+      } else if(pickOne >=0.5){
+        this.posX = rightEye[0]*scaleBy ;
+        this.posY = rightEye[1]*scaleBy ;
+      }
+      
+    } else{
+    this.posY = petalCanvas.height + 60;
+    this.posX = Math.random()*petalCanvas.width;
+    }
+    
+  }
+
 
 
 
@@ -88,9 +172,15 @@ Petal.prototype.update = function(){
   petalCanvasCtx.restore();
 }
 
+function dist(x1, y1, x2, y2){
+  var d = Math.sqrt( (x2-=x1)*x2 + (y2-=y1)*y2 );
+  return d;
+}
+
 
 function loadPetals(){
   initWebcam();
+  
 
   petalCanvas = document.getElementById("petalCanvas");
   petalCanvas.width = window.innerWidth;
@@ -160,6 +250,7 @@ function onloadHandler(){
 
 
 function init(){
+
   //video = document.createElement( 'video');
   //video.src = "images/allOne.mp4";
   //video.load();
@@ -171,7 +262,8 @@ function init(){
   videoImage.height = 720;
 
   videoImageContext = videoImage.getContext('2d');
-  
+  startTracker();
+
   camScene = new THREE.Scene();
   sepScene = new THREE.Scene();
   scene1 = new THREE.Scene();
@@ -246,14 +338,15 @@ function init(){
   var screenGeometry = new THREE.PlaneGeometry(w, h);
 
 
-
+/*
   quad = new THREE.Mesh(screenGeometry, diffShader);
   sepScene.add(quad);
-  
+  */
   planeMaterial = new THREE.MeshBasicMaterial({map:videoTexture});
   quad = new THREE.Mesh(screenGeometry, planeMaterial);
   camScene.add(quad);
 
+/*
   quad = new THREE.Mesh(screenGeometry, reposShader);
   scene1.add(quad);
 
@@ -267,7 +360,7 @@ function init(){
 
   var cQuad = new THREE.Mesh(screenGeometry, colorShader);
   scene5.add(cQuad);
-
+*/
 
 
   renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer:false, alpha: true, antialias:false, precision: "highp"});
@@ -310,6 +403,8 @@ function render(){
   //  reposShader.uniforms.tex2.value = tex1;
   }
   
+
+  /*
   renderer.render(sepScene, orthoCamera, diffTex, true);
   renderer.render(camScene, orthoCamera, pastFrame, true);
   renderer.render(scene4, orthoCamera, tex3, true);
@@ -321,7 +416,10 @@ function render(){
   //renderer.render(scene2, orthoCamera);
 
   renderer.render(scene5, orthoCamera);
-  
+  */
+renderer.render(camScene, orthoCamera);
+
+
   window.requestAnimationFrame(render);
 }
 

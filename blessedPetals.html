@@ -257,7 +257,7 @@ vec4 colormap(float x) {
 
 		t.rgb = 1.0 - t.rgb;
 
-		float l = luma(t);
+		float l = 1.0 - luma(t);
 		vec3 hsv = rgb2hsv(colormap(l).rgb);
 
 		hsv.g -= 0.3;
@@ -272,11 +272,13 @@ vec4 colormap(float x) {
 	}
 
 	</script>
-
+	<script src="scripts/clmtrackr.js"></script>
+	<script src="scripts/model_pca_20_svm.js"></script>
 	<script src="scripts/three.js"></script>
 	<script src="scripts/OrbitControls.js"></script>
 	<script src="scripts/jquery-1.11.2.js"></script>
 	<script src="scripts/blessedPetals.js"></script>
+
 	
 
 </body>
