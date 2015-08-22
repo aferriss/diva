@@ -18,8 +18,9 @@
 </head>
 <body>
 	<div id="enableWebcam">
-		<p> Please enable your webcam &lt;3 </p>
+		<p> Move with me, merge with me.</p>
 	</div>
+
 	<div id="container"></div>
 		<source src="images/allOne.mp4" type="video/mp4">
 	</video>
@@ -76,17 +77,17 @@
 
 	void main() {
 	    vec4 t = texture2D(u_image, vUv);
-	    vec4 w = texture2D(webcamImage, vUv);
+	    //vec4 w = texture2D(webcamImage, vUv);
 
 	    vec4 past = texture2D(pastFrame, vUv);
-	    vec4 pastW = texture2D(pastWebcam, vUv);
+	    //vec4 pastW = texture2D(pastWebcam, vUv);
 
-	    vec4 tw = mix(t, w, 0.5);
-	    vec4 pastPastW = mix(past, pastW, 0.5);
+	    //vec4 tw = mix(t, w, 0.5);
+	    //vec4 pastPastW = mix(past, pastW, 0.5);
 
 	    vec4 fb = texture2D(fbTex, vUv);
 
-	    vec3 diff = pastPastW.rgb - tw.rgb;
+	    vec3 diff = t.rgb - past.rgb;
 	    //vec3 diff = pastW.rgb - w.rgb;
 	    //diff*= diff;
 

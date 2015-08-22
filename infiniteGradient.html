@@ -71,6 +71,7 @@
 				for (int i = 0; i < 9; i++) {
 				  sum += texture2D(u_image,v_texCoord+offset[i])*(kernel[i]);
 				}
+				
 				sum /= 9.0;
 
 				gl_FragColor = sum;
@@ -152,23 +153,23 @@ void main() {
     //blur *= 0.2;
 
     //vec4 color = vec4(normalize(vec3(dX,dY,1.0/300.0)),1.0)+blur;
-    
+    float s = dX*dX+dY*dY;
     vec4 sobelImg = vec4(vec3(normalize(dX+dY)),1.0);
-    vec4 fc = normalize(dX+dY) > 0.1 ? sobelImg : vec4(0.0);
+    vec4 fc = normalize(dX+dY) > 0.1 ? sobelImg : vec4(0.0,0.0,0.0,0.0);
     //vec4 fc2 = normalize(eX+eY) > 0.1 ? sobelImg : vec4(0.0);
     //vec4 fc3 = normalize(fX+fY) > 0.1 ? sobelImg : vec4(0.0);
     //float fcc = mix( dot(fc, fc2), dot(fc,fc3), fc3.r);
 
     //vec3 nze = makeColored(v_texCoord, fcc);
-    fc.r *= sin(time);
+    fc.r *= sin(time*0.25);
     //fc.g +=0.5;
     //fc.b += 0.5;
-    vec3 hsv = hsv2rgb(fc.rgb+(input0.rgb*0.25));
+    vec3 hsv = hsv2rgb(fc.rgb+(input0.rgb*0.15));
     //vec3 rgb = rgb2hsv(hsv);
     
     //vec4 fccc = vec4(fcc,fc.a);
     //fc*=fc;
-    gl_FragColor = vec4(vec3(hsv),0.1);//input0;//dot(input0,mod(input0,sin(time*0.1)/2.0+0.5))*input0;
+    gl_FragColor = vec4(vec3(hsv),0.025);//input0;//dot(input0,mod(input0,sin(time*0.1)/2.0+0.5))*input0;
     
     
 }

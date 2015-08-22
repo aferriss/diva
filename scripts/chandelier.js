@@ -1,10 +1,10 @@
-var w = 400;
-var h = 300;
+var w = 300;// window.innerWidth;
+var h = 225;//window.innerHeight;
 var container = document.getElementById("container");
 var videoLoaded = false;
 var video = document.createElement('video');
-video.width = w;
-video.height = h;
+video.width =w;// window.innerWidth;
+video.height =h;// window.innerHeight;
 var time = 0;
 
 var container, scene, camScene, diffScene, fbScene, renderer, camera, orthoCamera, plane, skyBox, shader, diffShader, fbShader, blurShader, shader2, tex, fbTex, sceneTex, prevFrame, videoTexture, videoImage, videoImageContext;
@@ -26,20 +26,29 @@ var diamondLoaded = false;
 var modelLoaded = false;
 var semShader;
 var randVals = [];
-
+var scaleBy = 4;
+var ctracker;
+var randXSpeeds = [];
+var randYSpeeds = [];
 
 function startTracker(){
-  var ctracker = new clm.tracker({scoreThreshold: 0.30});
+  //video.width = 400;//window.innerWidth/4;
+  //video.width = 300;//window.innerHeight/4;
+
+  ctracker = new clm.tracker({searchWindow: 50});
+
   ctracker.init(pModel);
   ctracker.start(video);
 
   var canvasInput = document.getElementsByTagName('canvas')[0];
+  canvasInput.width = window.innerWidth;
+  canvasInput.height = window.innerHeight;
   console.log(canvasInput);
   var cc = canvasInput.getContext('2d');
 
   function drawFrame(){
     cc.clearRect(0,0,canvasInput.width, canvasInput.height);
-    //ctracker.draw(canvasInput);
+    ctracker.draw(canvasInput);
     
     if(updatePos){
     var positions = ctracker.getCurrentPosition();
@@ -164,7 +173,7 @@ function dist(x1, y1, x2, y2){
 function render(){
   time += 0.05;
 
-  if(leftEyeTracked != undefined && dist(noseMiddle[0] - w/2, noseMiddle[1] + h/2, w/2, h/2) < 300  && dist(chinBottom[0] - w/2, chinBottom[1]+h/2, noseTop[0] - w/2, noseTop[1] + h/2) > 50 ){
+  if(leftEyeTracked != undefined ){
     /*
     leCube.position.set(leftEyeTracked[0] - w/2, -leftEyeTracked[1] + h/2, 0);
     reCube.position.set(rightEyeTracked[0] - w/2, -rightEyeTracked[1] + h/2, 0);
@@ -180,7 +189,7 @@ function render(){
         crystals[i].rotation.y = time*0.5+randVals[i];
       }
 
-      crystals[0].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2, 0);
+      crystals[0].position.set(leftCheek[0]  -w/2, -leftCheek[1] +h/2, 0);
       crystals[6].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 25, 0);
       crystals[7].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 45, 0);
       crystals[8].position.set(leftCheek[0] - w/2, -leftCheek[1] + h/2 - 55, 0);
@@ -194,7 +203,6 @@ function render(){
       crystals[15].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 -10, 0);
       crystals[16].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 - 20, 0);
       crystals[17].position.set(leftMidCheek[0] - w/2, -leftMidCheek[1] + h/2 - 30, 0);
-
 
 
       crystals[1].position.set(rightCheek[0] - w/2, -rightCheek[1] + h/2, 0);
@@ -212,6 +220,24 @@ function render(){
       crystals[21].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -10, 0);
       crystals[22].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -20, 0);
       crystals[23].position.set(rightMidCheek[0] - w/2, -rightMidCheek[1] + h/2 -30, 0);
+
+      //forehead
+      crystals[24].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 + 45, 0);
+
+      var count = -200;
+      for(var i = 25; i<35; i++ ){
+        count+=40;
+        crystals[i].position.set((noseTop[0] - w/2 )+count, (-noseTop[1] + h/2 + 75) - (Math.sin(4.7 + count/50)/2 + 0.5)*100, 0);
+        crystals[i].rotation.z = 180 * Math.PI/180;
+
+        if(i < 28 || i > 30){
+          crystals[i+10].position.set((noseTop[0] - w/2 )+count, (-noseTop[1] + h/2 + 55) - (Math.sin(4.7 + count/50)/2 + 0.5)*100, 0);
+          //crystals[i+10].rotation.z = 180 * Math.PI/180;
+        }
+        
+        //crystals[i+10].rotation.z = 180 * Math.PI/180;
+
+      }
     }
 
     if(diamondLoaded){
@@ -245,6 +271,7 @@ function render(){
       diamonds[15].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 + 9, 0); 
       diamonds[16].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 + 15, 0);
       diamonds[26].position.set(noseTop[0] - w/2, -noseTop[1] + h/2 + 20, 0); 
+
       
       //under mouth
       diamonds[17].position.set(mouthBottom[0] - w/2, -mouthBottom[1] + h/2 , 0); 
@@ -260,8 +287,41 @@ function render(){
       diamonds[23].position.set(rightEyeRightSide[0] - w/2, -rightEyeRightSide[1] + h/2 +1 , 0); 
       diamonds[24].position.set(rightEyeRightSide[0] - w/2 + 1, -rightEyeRightSide[1] + h/2 -4, 0); 
       diamonds[25].position.set(rightEyeRightSide[0] - w/2 + 2, -rightEyeRightSide[1] + h/2 - 9, 0); 
+
+      var diamondCount = -200;
+      for(var i = 26; i<36; i++){
+      diamondCount += 40;
+      diamonds[i].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 90) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+
+      if(i <29 || i > 31 ){
+        diamonds[i+10].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 35) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+      }
+
+      if(i <29 || i > 31 ){
+        diamonds[i+20].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 15) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+      }
+      }
+    }
+  } 
+
+/*
+if(ctracker.getScore() < 0.9){  
+  if(diamondLoaded){
+    for (var i =0; i < diamonds.length; i++) {
+      //diamonds[i].position.set(Math.random()*window.innerWidth - w/2, Math.random()*window.innerHeight - h/2, 0 );
+      diamonds[i].position.set(diamonds[i].position.x + randXSpeeds[i], diamonds[i].position.y + randYSpeeds[i], 0);
     }
   }
+  if(modelLoaded){
+    for(var i = 0; i<crystals.length; i++){
+      //crystals[i].position.set(Math.random()*window.innerWidth - w/2, Math.random()*window.innerHeight - h/2, 0 );
+      crystals[i].position.set(crystals[i].position.x + randXSpeeds[i], crystals[i].position.y + randYSpeeds[i], 0);
+    }
+  }
+}
+*/
+
+
   if(video.readyState === video.HAVE_ENOUGH_DATA){
     if(videoTexture){
       videoTexture.needsUpdate = true;
@@ -289,22 +349,25 @@ function loadCrystal(){
     result.computeMorphNormals();
     result.computeTangents();
     
-    for( var i = 0; i<24; i++){
+    for( var i = 0; i<65; i++){
       crystal = new THREE.Mesh(result, semShader);
       crystal.scale.set(30,30,30);
+      crystal.position.set(-10000,0,0);
       camScene.add(crystal);
       crystals.push(crystal);
+
       randVals[i] = Math.random()*10;
     }
-
+    crystals[0].scale.set(15,15,15);
+    crystals[1].scale.set(15,15,15);
     crystals[2].scale.set(10,10,10);
     crystals[3].scale.set(10,10,10);
-    crystals[4].scale.set(20,20,20);
-    crystals[5].scale.set(20,20,20);
-    crystals[6].scale.set(20,20,20);
+    crystals[4].scale.set(10,10,10);
+    crystals[5].scale.set(10,10,10);
+    crystals[6].scale.set(10,10,10);
     crystals[7].scale.set(10,10,10);
     crystals[8].scale.set(5,5,5);
-    crystals[9].scale.set(20,20,20);
+    crystals[9].scale.set(10,10,10);
     crystals[10].scale.set(10,10,10);
     crystals[11].scale.set(5,5,5);
 
@@ -320,8 +383,14 @@ function loadCrystal(){
     crystals[21].scale.set(5,5,5);
     crystals[22].scale.set(5,5,5);
     crystals[23].scale.set(5,5,5);
-
+    crystals[24].rotation.z = -180 * Math.PI/180;
     modelLoaded = true;
+
+    for(var i = 25; i<35; i++){
+      crystals[i].scale.set(10,10,10);
+      crystals[i+10].scale.set(10,10,10);
+    }
+
   });
 }
 
@@ -337,13 +406,17 @@ function loadDiamonds(){
     result.computeVertexNormals();
     result.computeMorphNormals();
     result.computeTangents();
-    for( var i = 0; i< 37; i++){
+    for( var i = 0; i< 60; i++){
       diamond = new THREE.Mesh( result, semShader);
       diamond.rotation.x = -90 * Math.PI/180;
+      diamond.position.set(-10000,0,0);
       diamond.scale.set(1.35,1.35,1.35);
 
       camScene.add(diamond);
       diamonds.push(diamond);
+
+      randXSpeeds[i] = Math.random()*3 - 1.5;
+      randYSpeeds[i] = Math.random()*3 - 1.5;
     }
 
     //brow stuff
@@ -365,6 +438,11 @@ function loadDiamonds(){
     diamonds[25].scale.set(3,3,3);
 
     diamondLoaded = true;
+
+    for(var i = 26; i< 36; i++){
+      diamonds[i+20].scale.set(3,20,3);
+      diamonds[i+20].rotation.x = 00 * Math.PI/180;
+    }
   });
 }
 

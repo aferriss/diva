@@ -30,8 +30,8 @@ function init(){
   shader = new THREE.ShaderMaterial({
     uniforms: {
       u_image: {type: 't', value: videoTexture },
-      step_w: { type: 'f', value: 2.0/w },
-      step_h: { type: 'f', value: 2.0/h },
+      step_w: { type: 'f', value: 2.3/w },
+      step_h: { type: 'f', value: 2.3/h },
       texelWidth: {type:'f', value: 0.001/w} 
     },
     vertexShader: document.getElementById('vertexShader').textContent,
@@ -122,7 +122,7 @@ init();
         soundFile.appendChild(sndSrc);
 
         soundFile.load();
-        soundFile.play();
+        //soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");
         webcamMsg.style.display = "none";

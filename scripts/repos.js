@@ -49,7 +49,15 @@ var rtt, tex1, tex2, tex3, diffTex;
 
 
 function init(){
-  initWebcam();
+  var soundFile = document.createElement("audio");
+  soundFile.preload = "auto";
+  var sndSrc = document.createElement("source");
+  sndSrc.src = "tracks/allOne.mp3";
+  soundFile.appendChild(sndSrc);
+
+  soundFile.load();
+  soundFile.play();
+  //initWebcam();
 
   video = document.createElement( 'video');
   video.src = "images/allOne.mp4";
@@ -110,8 +118,8 @@ function init(){
   diffShader = new THREE.ShaderMaterial({
     uniforms:{
       u_image: {type: 't', value: videoTexture},
-      webcamImage: {type: 't', value: webcamTexture},
-      pastWebcam: {type: 't', value: pastWebcam},
+      //webcamImage: {type: 't', value: webcamTexture},
+      //pastWebcam: {type: 't', value: pastWebcam},
       pastFrame: {type: 't', value: pastFrame },
       fbTex: {type: 't', value: tex1 }
     },
@@ -155,9 +163,9 @@ function init(){
   quad = new THREE.Mesh(screenGeometry, planeMaterial);
   camScene.add(quad);
 
-  var webCamMat = new THREE.MeshBasicMaterial({map:webcamTexture});
-  var wquad = new THREE.Mesh(screenGeometry, webCamMat);
-  webScene.add(wquad);
+  //var webCamMat = new THREE.MeshBasicMaterial({map:webcamTexture});
+  //var wquad = new THREE.Mesh(screenGeometry, webCamMat);
+  //webScene.add(wquad);
 
   quad = new THREE.Mesh(screenGeometry, reposShader);
   scene1.add(quad);
@@ -234,7 +242,7 @@ function render(){
 
   renderer.render(scene5, orthoCamera);
 
-  renderer.render(webScene, orthoCamera, pastWebcam, true);
+  //renderer.render(webScene, orthoCamera, pastWebcam, true);
   
   window.requestAnimationFrame(render);
 }
@@ -274,14 +282,6 @@ function initWebcam(){
         webcam.play();
         videoLoaded = true;
 
-        var soundFile = document.createElement("audio");
-        soundFile.preload = "auto";
-        var sndSrc = document.createElement("source");
-        sndSrc.src = "tracks/allOne.mp3";
-        soundFile.appendChild(sndSrc);
-
-        soundFile.load();
-        soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");
         webcamMsg.style.display = "none";

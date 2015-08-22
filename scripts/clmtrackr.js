@@ -52,8 +52,8 @@ var clm = {
 		It's possible to experiment with the sequence of variances used for the finding the maximum in the KDE.
 		This sequence is pretty arbitrary, but was found to be okay using some manual testing.
 		*/
-		//var varianceSeq = [10,5,1];
-		var varianceSeq = [3,1.5,0.75];
+		var varianceSeq = [10,5,1];
+		//var varianceSeq = [3,1.5,0.75];
 		//var varianceSeq = [6,3,0.75];
 		var PDMVariance = 0.7;
 		
