@@ -18,6 +18,19 @@ var glowShader, blurHShader, blurVShader, bloomShader;
 var blurHTex, blurVTex;
 var blurHScene, blurVScene, bloomScene;
 var glowTex;
+var gates = [];
+var planes = [];
+var gate;
+var gatesLoaded = false;
+var camMouseX = 0;
+var camMouseY = 0;
+var bloomTex;
+var semShader;
+var threeDRtt;
+var threeDRttScene;
+var threeDRttTex;
+var box;
+var fbEqShader;
 
 function init(){
   initWebcam();
@@ -31,12 +44,14 @@ function init(){
   blurHScene = new THREE.Scene();
   blurVScene = new THREE.Scene();
   bloomScene = new THREE.Scene();
+  threeDRttScene = new THREE.Scene();
 
   orthoCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
-  camera = new THREE.PerspectiveCamera(45, w/h, 0.1,40000);
+  camera = new THREE.PerspectiveCamera(120, w/h, 0.1,4000000);
 
-  camera.position.set(0,0,10);
+  camera.position.set(0,150,0);
   scene.add(camera);
+
   camScene.add(orthoCamera);
   diffScene.add(orthoCamera);
   fbScene.add(orthoCamera);
@@ -45,6 +60,7 @@ function init(){
   blurHScene.add(orthoCamera);
   blurVScene.add(orthoCamera);
   bloomScene.add(orthoCamera);
+  threeDRttScene.add(orthoCamera);
 
 
   tex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
@@ -57,6 +73,9 @@ function init(){
   blurHTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   blurVTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
   glowTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  bloomTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  threeDRtt = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  threeDRttTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
 
   videoTexture = new THREE.Texture( video );
@@ -135,6 +154,39 @@ function init(){
     fragmentShader: document.getElementById('bloom').textContent
   });
 
+  fbEqShader = new THREE.ShaderMaterial({
+    uniforms:{
+      u_image: {type: 't', value: threeDRttTex}
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('fbEq').textContent,
+    side: THREE.DoubleSide,
+    transparent: true
+  });
+
+console.log(fbEqShader);
+  semShader = new THREE.ShaderMaterial({
+    uniforms:{
+      tex: {type: 't', value: THREE.ImageUtils.loadTexture('images/1.png')},
+      tNormal: {type: 't', value: THREE.ImageUtils.loadTexture('images/2563-normalLight.jpg')},
+      repeat: { type: 'v2', value: new THREE.Vector2(1,1) },
+      useNormal: {type: 'f', value: 1 },
+      useRim: {type: 'f', value: 1.0},
+      rimPower: {type: 'f', value: 2.5},
+      normalScale: {type: 'f', value: 1.05 },
+      normalRepeat: {type: 'f', value: 2.0}
+    },
+    vertexShader: document.getElementById('semVert').textContent,
+    fragmentShader: document.getElementById('semFrag').textContent,
+    transparent: true,
+    shading: THREE.SmoothShading,
+    side: THREE.DoubleSide,
+    wireframe: false
+  });
+
+  semShader.uniforms.tNormal.value.wrapS = semShader.uniforms.tNormal.value.wrapT = 
+  THREE.RepeatWrapping;
+
 
   var screenGeometry = new THREE.PlaneGeometry(w, h);
 
@@ -143,7 +195,6 @@ function init(){
   //just the video tex
   quad = new THREE.Mesh(screenGeometry, glowShader);
   camScene.add(quad);
-
 
   quad = new THREE.Mesh(screenGeometry, blurHShader);
   blurHScene.add(quad);
@@ -154,6 +205,34 @@ function init(){
   quad = new THREE.Mesh(screenGeometry, bloomShader);
   bloomScene.add(quad);
 
+  var rttMat = new THREE.MeshBasicMaterial({map: threeDRtt});
+  quad = new THREE.Mesh(screenGeometry, rttMat);
+  threeDRttScene.add(quad);
+
+
+  var ambientLight = new THREE.AmbientLight( 0x000000 );
+  scene.add( ambientLight );
+
+  var lights = [];
+  lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
+  lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
+  lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
+  
+  lights[0].position.set( 0, 200, 0 );
+  lights[1].position.set( 100, 200, 100 );
+  lights[2].position.set( -100, -200, -100 );
+
+  scene.add( lights[0] );
+  scene.add( lights[1] );
+  scene.add( lights[2] );
+
+  //var boxMat = new THREE.MeshBasicMaterial({map:threeDRttTex, side:THREE.DoubleSide});
+  var sg = new THREE.BoxGeometry( 10000, 10000, 10000 );
+  box = new THREE.Mesh(sg, fbEqShader);
+  box.scale.set(100,100,100);
+  box.position.set(0,0,0);
+  scene.add(box);
+  loadGate();
   /*
   //the differencing scene
   quad = new THREE.Mesh(screenGeometry, diffShader);
@@ -194,7 +273,7 @@ function init(){
 
   renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer:false, alpha: true, antialias:true});
   renderer.setSize(w, h);
-  renderer.autoClear = false;
+  renderer.autoClear = true;
   container.appendChild(renderer.domElement);
 
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -203,10 +282,79 @@ function init(){
   render();
 }
 
+function loadGate(){
+  var loader = new THREE.JSONLoader();
+  loader.load('models/portalGate.json', function (result){
+    assignUVs(result);
+    result.verticesNeedUpdate = true;
+    result.normalsNeedUpdate = true;
+    result.uvsNeedUpdate = true;
+    result.computeFaceNormals();
+    result.computeVertexNormals();
+    result.computeMorphNormals();
+    result.computeTangents();
+
+    
+    
+    console.log(result);
+    var baseMat = new THREE.MeshBasicMaterial({map:videoTexture});
+    for(var i = 0; i< 4; i++){
+      gate = new THREE.Mesh(result, semShader);
+      gates.push(gate);
+      gates[i].scale.set(30,30,30);
+      gates[i].position.set(0,0,0);
+      //gates[i].rotation.z = 90 * Math.PI/180;
+
+      var plane = new THREE.PlaneGeometry(150,300);
+      var planeMesh = new THREE.Mesh(plane, baseMat);
+      planes.push(planeMesh);
+      planes[i].position.set(0,105,0);
+      //planes[i].scale.set(30,30,30);
+
+      scene.add(planes[i]);
+      scene.add(gates[i]);
+    }
+
+
+
+
+    gates[0].rotation.y = 0;
+    gates[0].position.z -= 150;
+    planes[0].position.z -= 170;
+
+    gates[1].rotation.y = 90 * Math.PI/180;
+    gates[1].position.x -=150;
+    planes[1].rotation.y = 90 * Math.PI/180;
+    planes[1].position.x -= 170;
+
+    gates[2].rotation.y = 180 * Math.PI/180;
+    gates[2].position.z += 150;
+    planes[2].rotation.y = 180 * Math.PI/180;
+    planes[2].position.z += 170;
+
+    gates[3].rotation.y = 270 * Math.PI/180;
+    gates[3].position.x += 150;
+    planes[3].rotation.y = 270 * Math.PI/180;
+    planes[3].position.x += 170;
+
+
+    gatesLoaded = true;
+  });
+}
+
 
 function render(){
   time += 0.025;
-  
+
+  box.rotation.x = time*0.0625;
+  box.rotation.y = time*0.125;
+  //camera.position.x += (camMouseX - camera.position.x) * .0005;
+  camera.rotation.y -= (camMouseX - camera.position.x) * .00005;
+  camera.rotation.x -= (-camMouseY - camera.position.y) * .00005;
+  //camera.position.z += (- camMouseY - camera.position.y) * .0005;
+  //camera.rotation.y += 0.005;
+  //camera.lookAt(new THREE.Vector3(0,-50,0));
+
   //quad.rotation.set(Math.sin(time)*Math.PI/180,0,Math.sin(time)*1.1*Math.PI/180);
   //quad.position.z += 0.01;
   //box.position.x = Math.sin(time*10)*300;
@@ -241,6 +389,7 @@ function render(){
   renderer.render(diffScene, orthoCamera);
   */
 
+/*
   blurHShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
   blurVShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
 
@@ -261,20 +410,57 @@ function render(){
     renderer.render(blurHScene, orthoCamera, blurHTex);
     renderer.render(blurVScene, orthoCamera, blurVTex);
   }
+  */
 //renderer.render(blurVScene, orthoCamera);
 
-  renderer.render(bloomScene, orthoCamera);
+  renderer.render(bloomScene, orthoCamera, bloomTex);
 
-
+  renderer.render(scene, camera, threeDRtt);
+  renderer.render(threeDRttScene, orthoCamera, threeDRttTex);
+  renderer.render(scene, camera);
 
 
   window.requestAnimationFrame(render);
+}
+
+function assignUVs(geometry) {
+
+
+    geometry.computeBoundingBox();
+
+    var max     = geometry.boundingBox.max;
+    var min     = geometry.boundingBox.min;
+
+    var offset  = new THREE.Vector2(0 - min.x, 0 - min.y);
+    var range   = new THREE.Vector2(max.x - min.x, max.y - min.y);
+
+    geometry.faceVertexUvs[0] = [];
+    var faces = geometry.faces;
+
+    for (i = 0; i < geometry.faces.length ; i++) {
+
+      var v1 = geometry.vertices[faces[i].a];
+      var v2 = geometry.vertices[faces[i].b];
+      var v3 = geometry.vertices[faces[i].c];
+
+      geometry.faceVertexUvs[0].push([
+        new THREE.Vector2( ( v1.x + offset.x ) / range.x , ( v1.y + offset.y ) / range.y ),
+        new THREE.Vector2( ( v2.x + offset.x ) / range.x , ( v2.y + offset.y ) / range.y ),
+        new THREE.Vector2( ( v3.x + offset.x ) / range.x , ( v3.y + offset.y ) / range.y )
+      ]);
+
+    }
+
+    geometry.uvsNeedUpdate = true;
 }
 
 function onDocumentMouseMove( event ) {
 
   mouseX = ( event.clientX  );
   mouseY = ( event.clientY  );
+
+  camMouseX = (event.clientX - window.innerWidth/2) * 1;
+  camMouseY = (event.clientY - window.innerHeight/2) * 1;
 
 }
 
