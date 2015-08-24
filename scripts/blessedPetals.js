@@ -53,7 +53,7 @@ soundFile.appendChild(sndSrc);
 soundFile.load();
 
 var numPetals = 6;
-var numP = 1000;
+var numP = 500;
 
 window.addEventListener( 'resize', onWindowResize, false );
 
@@ -85,7 +85,7 @@ var scaleBy = 4;
 function Petal(fileName, posX, posY){
   this.posX = posX;
   this.posY = posY;
-  this.size = 10 + Math.random()*15;
+  this.size = 10 + Math.random()*30;
   this.fileName = fileName;
   this.img = new Image();
   this.speed =  Math.random()*15 - 7.5;

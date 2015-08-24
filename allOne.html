@@ -14,12 +14,29 @@
 			//width:400;
 			//height: 300;
 		}
+
+		#merge{
+			position: absolute;
+			left: 80%;
+			top: 30%;
+			display: inline;
+		}
+		#move{
+			position: absolute;
+			right: 80%;
+			top: 30%;
+			display: inline;
+		}
 	</style>
 </head>
 <body>
+	
+	<img id="move" src="images/moveSmall.png" />
+	<img id="merge" src="images/mergeSmall.png" />
 	<div id="enableWebcam">
-		<p> Move with me, merge with me.</p>
 	</div>
+
+
 
 	<div id="container"></div>
 		<source src="images/allOne.mp4" type="video/mp4">

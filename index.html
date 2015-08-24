@@ -1,0 +1,191 @@
+<html>
+<head>
+<title>Divinity in Thee</title>
+<link rel="stylesheet" type="text/css" href="diva.css">
+<link href='http://fonts.googleapis.com/css?family=Cedarville+Cursive' rel='stylesheet' type='text/css'>
+
+<style>
+	body{
+		padding: 0px;
+		margin: 0px;
+		background-image: url("images/diva.jpg");
+		-webkit-background-size: cover;
+		-moz-background-size: cover;
+		-o-background-size: cover;
+		background-size: cover;
+
+		//font-family: arial;
+		font-family: 'Cedarville Cursive', cursive;
+		color: white;
+	}
+
+	p{
+		margin-top: 0px;
+	}
+
+	a:link {
+	    color: #FF0000;
+	    text-decoration: none;
+	}
+
+	a:visited {
+	    color: #00FF00;
+	}
+
+	a:hover {
+	    color: #FF00FF;
+	}
+
+	a:active {
+	    color: #0000FF;
+	}
+
+	#heart{
+		position: absolute;
+		top: 50px;
+		left: 600px;
+		display: inline;
+	}
+	#instructionsButton{
+		padding: 20 20 0 20px;
+		cursor: hand;
+	}
+
+	#instructions{
+		color: white;
+		
+		width: 400px;
+		padding: 20px;
+	}
+	#about{
+		padding: 20px;
+		display: inline;
+		/*
+		right: 0px;
+		top: 0px;
+		position: absolute;
+		*/
+		
+		color: white;
+		width: 400px;
+		/*
+		text-align: right;
+		*/
+	}
+
+	#aboutButton{
+		padding: 0 20 0 20px ;
+		cursor: hand;
+	}
+
+	#trackListButton{
+		padding: 0 20 0 20px ;
+		cursor: hand;
+	}
+
+	#trackList{
+		padding: 20px;
+	}
+
+	#adam{
+		font-size: 10px;
+	}
+
+	#trackListButton:hover{
+		cursor: hand;
+	}
+
+	#header{
+		color: pink;
+		padding: 20 0 20 0px;
+	}
+</style>
+</head>
+<body>
+<script src="scripts/jquery-1.11.2.js"></script>
+<script type="text/javascript">
+	var urls = [
+		"divinityInThee.html",
+		"allOne.html",
+		"mutantNights.html",
+		"satori.html",
+		"goingDeep.html",
+		"lite.html",
+		"infiniteGradient.html",
+		"cosmicChandelier.html",
+		"blessed.html",
+		"doorsToYialmel.html"
+	];
+
+
+	$(document).ready(function(){
+		$("#instructions").hide();
+		$("#about").hide();
+		$("#trackList").hide();
+
+		$("#instructionsButton").click(function(){
+			$("#trackList").hide('fast');
+			$("#about").hide('fast');
+			$("#about").hide('fast');
+			$("#instructions").slideToggle('fast');
+		});
+
+		$("#aboutButton").click(function(){
+			$("#trackList").hide('fast');
+			$("#instructions").hide('fast');
+			$("#about").slideToggle('fast');
+		});
+
+		$("#trackListButton").click(function(){
+			$("#about").hide('fast');
+			$("#about").hide('fast');
+			$("#instructions").hide('fast');
+			$("#trackList").slideToggle('fast');
+		});
+
+		$("#heart").click(function(){
+			var rand = Math.floor(Math.random()*8);
+			document.location.href = urls[rand];
+		});
+	});
+
+</script>
+
+<img src="images/heart.jpg" id="heart" />
+
+
+<div id="instructionsButton">INSTRUCTIONS</div>
+<div id="instructions">
+	<div id="header">
+		WELCOME TO THE DIVINITY IN THEE DIVINATION SYSTEM
+	</div>
+	CENTER YOURSELF IN PRESENT AWARENESS <br /><br />
+	THINK OF A QUESTION OR SIMPLY RESONATE YOUR BEING <br /><br /> 
+	CLICK ON DIVA’S HEART AND LET THE FOLLOWING EXPERIENCE GUIDE YOU
+</div>
+
+<div id="aboutButton">ABOUT</div>
+<div id="about">
+	<p>
+		THIS SYSTEM UTILIZES ARCHETYPES WITHIN THE DIVINITY IN THEE LP AS WELL AS INTERACTIVE VISUAL EXPERIENCE TO AID THE SEEKER. EACH INDIVIDUAL SONG PROGRAM OFFERS GUIDANCE BY ILLUMINATING AN ASPECT OF YOUR INTER-DIMENSIONAL DIVINE BEING.
+	</p>
+
+	<p><a href="https://www.stonesthrow.com/store/album/diva/divinity-in-thee">DIVINITY IN THEE IS AVAILABLE ON STONES THROW RECORDS</a></p>
+</div>
+
+<div id="trackListButton">TRACKLIST</div>
+<div id="trackList">
+	<p class="track"><a href="satori.html">SATORI</a></p>
+	<p class="track"><a href="divinityInThee.html">DIVINITY IN THEE</a></p>
+	<p class="track"><a href="blessed.html">BLESSED</a></p>
+	<p class="track"><a href="lite.html">LITE</a></p>
+	<p class="track"><a href="goingDeep.html">GOING DEEP</a></p>
+	<p class="track"><a href="doorsToYialmel.html">DOORS TO YIALMEL</a></p>
+	<p class="track"><a href="allOne.html">ALL ONE</a></p>
+	<p class="track"><a href="mutantNights.html">MUTANT NIGHTS</a></p>
+	<p class="track"><a href="infiniteGradient.html">INFINITE GRADIENT</a></p>
+	<p class="track"><a href="cosmicChandelier.html">COSMIC CHANDELIER</a></p>
+</div>
+
+</body>
+</html>

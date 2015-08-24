@@ -48,7 +48,7 @@ function init(){
   threeDRttScene = new THREE.Scene();
 
   orthoCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
-  camera = new THREE.PerspectiveCamera(45, w/h, 0.1,4000000);
+  camera = new THREE.PerspectiveCamera(120, w/h, 0.1,4000000);
 
   camera.position.set(0,150,0);
   scene.add(camera);
@@ -119,7 +119,7 @@ function init(){
     uniforms:{
       srcTex: {type: 't', value: videoTexture},
       step: {type: 'v2', value: new THREE.Vector2(30.0/window.innerWidth, 30.0/window.innerHeight)},
-      time: {type: 'f', value: time * 0.125 }
+      time: {type: 'f', value: time }
     },
     vertexShader: document.getElementById('vertexShader').textContent,
     fragmentShader: document.getElementById('glowFrag').textContent
@@ -178,7 +178,7 @@ function init(){
 console.log(fbEqShader);
   semShader = new THREE.ShaderMaterial({
     uniforms:{
-      tex: {type: 't', value: THREE.ImageUtils.loadTexture('images/1.png')},
+      tex: {type: 't', value: THREE.ImageUtils.loadTexture('images/ramp.png')},
       tNormal: {type: 't', value: THREE.ImageUtils.loadTexture('images/2563-normalLight.jpg')},
       repeat: { type: 'v2', value: new THREE.Vector2(1,1) },
       useNormal: {type: 'f', value: 1 },
@@ -221,30 +221,29 @@ console.log(fbEqShader);
   threeDRttScene.add(quad);
 
 
-  var urlPrefix = "images/sky/";
-  var urls = [urlPrefix + "posX.png", 
-              urlPrefix + "negX.png", 
-              urlPrefix + "posY.png", 
-              urlPrefix + "negY.png", 
-              urlPrefix + "negZ.png", 
-              urlPrefix + "posZ.png" 
-  ];
+  var ambientLight = new THREE.AmbientLight( 0x000000 );
+  scene.add( ambientLight );
 
-  var materialArray = [];
-  for(var i =0 ; i<6; i++){
-    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture(urls[i]), side: THREE.BackSide }));
-  }
+  var lights = [];
+  lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
+  lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
+  lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
+  
+  lights[0].position.set( 0, 200, 0 );
+  lights[1].position.set( 100, 200, 100 );
+  lights[2].position.set( -100, -200, -100 );
 
-  var skyMat = new THREE.MeshFaceMaterial(materialArray);
+  scene.add( lights[0] );
+  scene.add( lights[1] );
+  scene.add( lights[2] );
 
-
-  var boxMat = new THREE.MeshBasicMaterial({map:bloomTex, side:THREE.DoubleSide});
+  //var boxMat = new THREE.MeshBasicMaterial({map:threeDRttTex, side:THREE.DoubleSide});
   var sg = new THREE.BoxGeometry( 10000, 10000, 10000 );
-  box = new THREE.Mesh(sg, skyMat);
+  box = new THREE.Mesh(sg, fbEqShader);
   box.scale.set(100,100,100);
   box.position.set(0,0,0);
   scene.add(box);
-  //loadGate();
+  loadGate();
   /*
   //the differencing scene
   quad = new THREE.Mesh(screenGeometry, diffShader);
@@ -296,7 +295,7 @@ console.log(fbEqShader);
 
 function loadGate(){
   var loader = new THREE.JSONLoader();
-  loader.load('models/venus20k.js', function (result){
+  loader.load('models/gate7k.js', function (result){
     assignUVs(result);
     result.verticesNeedUpdate = true;
     result.normalsNeedUpdate = true;
@@ -309,12 +308,12 @@ function loadGate(){
     
     
     console.log(result);
-    var baseMat = new THREE.MeshBasicMaterial({map:bloomTex});
+    var baseMat = new THREE.MeshBasicMaterial({map:videoTexture});
     for(var i = 0; i< 4; i++){
-      gate = new THREE.Mesh(result, baseMat);
+      gate = new THREE.Mesh(result, semShader);
       gates.push(gate);
-      gates[i].scale.set(10,10,10);
-      gates[i].position.set(0,50,0);
+      gates[i].scale.set(3,3,3);
+      gates[i].position.set(0,0,0);
       //gates[i].rotation.z = 90 * Math.PI/180;
 
       var plane = new THREE.PlaneGeometry(150,300);
@@ -323,7 +322,7 @@ function loadGate(){
       planes[i].position.set(0,105,0);
       //planes[i].scale.set(30,30,30);
 
-      //scene.add(planes[i]);
+      scene.add(planes[i]);
       scene.add(gates[i]);
     }
 
@@ -331,25 +330,24 @@ function loadGate(){
 
 
     gates[0].rotation.y = 0;
-    gates[0].position.z -= 250;
+    gates[0].position.z -= 150;
     planes[0].position.z -= 170;
 
-    
     gates[1].rotation.y = 90 * Math.PI/180;
-    gates[1].position.x -=250;
+    gates[1].position.x -=150;
     planes[1].rotation.y = 90 * Math.PI/180;
     planes[1].position.x -= 170;
 
     gates[2].rotation.y = 180 * Math.PI/180;
-    gates[2].position.z += 250;
+    gates[2].position.z += 150;
     planes[2].rotation.y = 180 * Math.PI/180;
     planes[2].position.z += 170;
 
     gates[3].rotation.y = 270 * Math.PI/180;
-    gates[3].position.x += 250;
+    gates[3].position.x += 150;
     planes[3].rotation.y = 270 * Math.PI/180;
     planes[3].position.x += 170;
-  
+
 
     gatesLoaded = true;
   });
@@ -361,18 +359,11 @@ function render(){
 
   sineShader.uniforms.time.value = time;
 
-  //box.rotation.x = time*0.0625;
-  //box.rotation.y = time*0.125;
-
-  if(gatesLoaded){
-    gates[0].rotation.y = time*0.05;
-    gates[1].rotation.y = time*0.05;
-    gates[2].rotation.y = time*0.05;
-    gates[3].rotation.y = time*0.05;
-  }
+  box.rotation.x = time*0.0625;
+  box.rotation.y = time*0.125;
   //camera.position.x += (camMouseX - camera.position.x) * .0005;
   camera.rotation.y -= (camMouseX - camera.position.x) * .00001;
-  camera.rotation.x += (-camMouseY - camera.position.y) * .00001;
+  camera.rotation.x -= (-camMouseY - camera.position.y) * .00001;
   //camera.position.z += (- camMouseY - camera.position.y) * .0005;
   //camera.rotation.y += 0.005;
   //camera.lookAt(new THREE.Vector3(0,-50,0));
@@ -392,7 +383,7 @@ function render(){
   shader.uniforms.time.value = time;
 
   glowShader.uniforms.srcTex.value = videoTexture;
-  glowShader.uniforms.time.value = time*0.5;
+  glowShader.uniforms.time.value = time;
 
   //render diff scene to tex
   //renderer.render(diffScene, orthoCamera, tex, true);
@@ -411,7 +402,7 @@ function render(){
   renderer.render(diffScene, orthoCamera);
   */
 
-
+/*
   blurHShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
   blurVShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
 
@@ -432,14 +423,14 @@ function render(){
     renderer.render(blurHScene, orthoCamera, blurHTex);
     renderer.render(blurVScene, orthoCamera, blurVTex);
   }
-  
+  */
 //renderer.render(blurVScene, orthoCamera);
 
-  renderer.render(bloomScene, orthoCamera);
+  renderer.render(bloomScene, orthoCamera, bloomTex);
 
-  //renderer.render(scene, camera, threeDRtt);
-  //renderer.render(threeDRttScene, orthoCamera, threeDRttTex);
-  //renderer.render(scene, camera);
+  renderer.render(scene, camera, threeDRtt);
+  renderer.render(threeDRttScene, orthoCamera, threeDRttTex);
+  renderer.render(scene, camera);
 
 
   window.requestAnimationFrame(render);
