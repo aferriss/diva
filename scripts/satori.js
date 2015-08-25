@@ -28,8 +28,16 @@ var sepTex;
 var inc = 0;
 var mx, my;
 var normalScene, normalTex;
+var soundFile;
 
 function init(){
+    soundFile = document.createElement("audio");
+    soundFile.preload = "auto";
+    var sndSrc = document.createElement("source");
+    sndSrc.src = "tracks/satori.mp3";
+    soundFile.appendChild(sndSrc);
+
+    soundFile.load();
   
   initWebcam();
   camScene = new THREE.Scene();
@@ -188,6 +196,7 @@ function render(){
   renderer.render(sepScene, orthoCamera, normalTex, true);
 
   renderer.render(normalScene, orthoCamera);
+  //renderer.render(sepScene, orthoCamera);
 
 
   window.requestAnimationFrame(render);
@@ -272,13 +281,6 @@ function initWebcam(){
         video.play();
         videoLoaded = true;
 
-        var soundFile = document.createElement("audio");
-        soundFile.preload = "auto";
-        var sndSrc = document.createElement("source");
-        sndSrc.src = "tracks/satori.mp3";
-        soundFile.appendChild(sndSrc);
-
-        soundFile.load();
         soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");

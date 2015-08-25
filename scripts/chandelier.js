@@ -30,6 +30,7 @@ var scaleBy = 4;
 var ctracker;
 var randXSpeeds = [];
 var randYSpeeds = [];
+var soundFile;
 
 function startTracker(){
   //video.width = 400;//window.innerWidth/4;
@@ -40,15 +41,15 @@ function startTracker(){
   ctracker.init(pModel);
   ctracker.start(video);
 
-  var canvasInput = document.getElementsByTagName('canvas')[0];
-  canvasInput.width = window.innerWidth;
-  canvasInput.height = window.innerHeight;
-  console.log(canvasInput);
-  var cc = canvasInput.getContext('2d');
+  //var canvasInput = document.getElementsByTagName('canvas')[0];
+  //canvasInput.width = window.innerWidth;
+  //canvasInput.height = window.innerHeight;
+  //console.log(canvasInput);
+  //var cc = canvasInput.getContext('2d');
 
   function drawFrame(){
-    cc.clearRect(0,0,canvasInput.width, canvasInput.height);
-    ctracker.draw(canvasInput);
+    //cc.clearRect(0,0,canvasInput.width, canvasInput.height);
+    //ctracker.draw(canvasInput);
     
     if(updatePos){
     var positions = ctracker.getCurrentPosition();
@@ -93,6 +94,17 @@ function startTracker(){
 
 
 function init(){
+
+
+  soundFile = document.createElement("audio");
+  soundFile.preload = "auto";
+  var sndSrc = document.createElement("source");
+  sndSrc.src = "tracks/allOne.mp3";
+  soundFile.appendChild(sndSrc);
+
+  soundFile.load();
+  
+  
   
   initWebcam();
   startTracker();
@@ -230,10 +242,10 @@ function render(){
         crystals[i].position.set((noseTop[0] - w/2 )+count, (-noseTop[1] + h/2 + 75) - (Math.sin(4.7 + count/50)/2 + 0.5)*100, 0);
         crystals[i].rotation.z = 180 * Math.PI/180;
 
-        if(i < 28 || i > 30){
-          crystals[i+10].position.set((noseTop[0] - w/2 )+count, (-noseTop[1] + h/2 + 55) - (Math.sin(4.7 + count/50)/2 + 0.5)*100, 0);
-          //crystals[i+10].rotation.z = 180 * Math.PI/180;
-        }
+        //if(i < 28 || i > 30){
+          crystals[i+10].position.set((noseTop[0] - w/2 )+count + Math.cos(time)*10, (-noseTop[1] + h/2 + 75) - (Math.sin(4.7 + count/50)/2 + 0.5)*100 + Math.sin(-time)*15, 0);
+          crystals[i+10].rotation.z = time*0.1;
+        //}
         
         //crystals[i+10].rotation.z = 180 * Math.PI/180;
 
@@ -291,15 +303,22 @@ function render(){
       var diamondCount = -200;
       for(var i = 26; i<36; i++){
       diamondCount += 40;
-      diamonds[i].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 90) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+      diamonds[i].scale.set(10,10,10);
+      diamonds[i].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 120) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
 
       if(i <29 || i > 31 ){
         diamonds[i+10].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 35) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
       }
 
       if(i <29 || i > 31 ){
-        diamonds[i+20].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 15) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+        diamonds[i+20].scale.set(3,45,3);
+
+        diamonds[i+20].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 15) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*140 + (Math.sin(time*0.6)/2+0.5)*20, 0);
       }
+        diamonds[i+30].scale.set(2,2,2);
+        diamonds[i+30].position.set((noseTop[0] - w/2 )+diamondCount, (-noseTop[1] + h/2 + 160) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100, 0);
+
+        diamonds[i+40].position.set((noseTop[0] - w/2 )+diamondCount + Math.sin(time*0.5)*20.0, (-noseTop[1] + h/2 + 160) - (Math.sin(4.7 + diamondCount/50)/2 + 0.5)*100 + Math.cos(i/10+time*0.5)*20.0, 0);
       }
     }
   } 
@@ -406,7 +425,7 @@ function loadDiamonds(){
     result.computeVertexNormals();
     result.computeMorphNormals();
     result.computeTangents();
-    for( var i = 0; i< 60; i++){
+    for( var i = 0; i< 80; i++){
       diamond = new THREE.Mesh( result, semShader);
       diamond.rotation.x = -90 * Math.PI/180;
       diamond.position.set(-10000,0,0);
@@ -517,6 +536,7 @@ function initWebcam(){
        video.src = url ? url.createObjectURL(stream) : stream;
         video.play();
         videoLoaded = true;
+        soundFile.play();
         
     }
  

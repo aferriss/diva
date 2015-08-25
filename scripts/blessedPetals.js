@@ -52,8 +52,10 @@ soundFile.appendChild(sndSrc);
 
 soundFile.load();
 
-var numPetals = 6;
+var numPetals = 12;
 var numP = 500;
+
+var particleGroup, particleAttributes;
 
 window.addEventListener( 'resize', onWindowResize, false );
 
@@ -88,8 +90,8 @@ function Petal(fileName, posX, posY){
   this.size = 10 + Math.random()*30;
   this.fileName = fileName;
   this.img = new Image();
-  this.speed =  Math.random()*15 - 7.5;
-  this.xSpeed = (Math.random()*15) - 7.5; 
+  this.speed =  Math.random()*5 - 2.5;
+  this.xSpeed = (Math.random()*5) - 2.5; 
 }
 
 Petal.prototype.loadImage = function(){
@@ -206,12 +208,18 @@ function loadPetals(){
   petalFiles[3] = "images/petals/4.png";
   petalFiles[4] = "images/petals/5.png";
   petalFiles[5] = "images/petals/6.png";
+  petalFiles[6] = "images/petals/7.png";
+  petalFiles[7] = "images/petals/8.png";
+  petalFiles[8] = "images/petals/9.png";
+  petalFiles[9] = "images/petals/10.png";
+  petalFiles[10] = "images/petals/11.png";
+  petalFiles[11] = "images/petals/12.png";
 
 
   //petalCanvasCtx.drawImage(petals[0], 100, 100);
   for(var i = 0; i<numP; i++){
 
-    var p = new Petal(petalFiles[Math.floor(Math.random()*6)], Math.random()*petalCanvas.width, Math.random()*petalCanvas.height);
+    var p = new Petal(petalFiles[Math.floor(Math.random()*numPetals)], Math.random()*petalCanvas.width, Math.random()*petalCanvas.height);
     petals.push(p);
     petals[i].loadImage();
 
@@ -243,8 +251,8 @@ function drawPetals(){
 
 
 
-loadPetals();
-
+//loadPetals();
+init();
 
 
 
@@ -258,7 +266,7 @@ function onloadHandler(){
 
 
 function init(){
-
+  initWebcam();
   //video = document.createElement( 'video');
   //video.src = "images/allOne.mp4";
   //video.load();
@@ -292,7 +300,7 @@ function init(){
   scene4.add(orthoCamera);
   scene5.add(orthoCamera);
 
-  videoTexture = new THREE.Texture( petalCanvas );
+  videoTexture = new THREE.Texture( video );
   videoTexture.minFilter = THREE.LinearFilter;
   videoTexture.magFilter = THREE.LinearFilter;
 
@@ -352,7 +360,10 @@ function init(){
   */
   planeMaterial = new THREE.MeshBasicMaterial({map:videoTexture});
   quad = new THREE.Mesh(screenGeometry, planeMaterial);
-  camScene.add(quad);
+  //camScene.add(quad);
+
+
+  sepScene.add(quad);
 
 /*
   quad = new THREE.Mesh(screenGeometry, reposShader);
@@ -369,12 +380,67 @@ function init(){
   var cQuad = new THREE.Mesh(screenGeometry, colorShader);
   scene5.add(cQuad);
 */
+  var petal0 = new THREE.ImageUtils.loadTexture( 'images/petals/1.png');
+  var petal1 = new THREE.ImageUtils.loadTexture( 'images/petals/2.png');
+  var petal2 = new THREE.ImageUtils.loadTexture( 'images/petals/3.png');
+  var petal3 = new THREE.ImageUtils.loadTexture( 'images/petals/4.png');
+  var petal4 = new THREE.ImageUtils.loadTexture( 'images/petals/5.png');
+  var petal5 = new THREE.ImageUtils.loadTexture( 'images/petals/6.png');
+  var petal6 = new THREE.ImageUtils.loadTexture( 'images/petals/7.png');
+  var petal7 = new THREE.ImageUtils.loadTexture( 'images/petals/8.png');
+  var petal8 = new THREE.ImageUtils.loadTexture( 'images/petals/9.png');
+  var petal9 = new THREE.ImageUtils.loadTexture( 'images/petals/10.png');
+  var petal10 = new THREE.ImageUtils.loadTexture( 'images/petals/11.png');
+  var petal11 = new THREE.ImageUtils.loadTexture( 'images/petals/12.png');
 
+  var petalImages = [];
+  petalImages[0] = petal0;
+  petalImages[1] = petal1;
+  petalImages[2] = petal2;
+  petalImages[3] = petal3;
+  petalImages[4] = petal4;
+  petalImages[5] = petal5;
+  petalImages[6] = petal6;
+  petalImages[7] = petal7;
+  petalImages[8] = petal8;
+  petalImages[9] = petal9;
+  petalImages[10] = petal10;
+  petalImages[11] = petal11;
+
+  particleGroup = new THREE.Object3D();
+  particleAttributes = { startSize: [], startPosition:[], randomness:[], speedX:[], speedY:[], rotation:[] };
+
+  var totalParticles = 2000;
+  var radiusRange = 50;
+
+  for(var i = 0; i<totalParticles; i++){
+    var spriteMaterial = new THREE.SpriteMaterial( {map: petalImages[Math.floor(Math.random()*12)], useScreenCoordinates: true });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    var pSize = Math.random()*30 + 5;
+    sprite.scale.set(pSize,pSize,1);
+    sprite.position.set(Math.random() * 100, Math.random() * 10);
+
+    sprite.rotationAutoUpdate = false;
+    sprite.material.rotation = Math.random() - 0.5;
+    particleGroup.add(sprite);
+    particleAttributes.startSize.push(pSize);
+    particleAttributes.startPosition.push(sprite.position.clone());
+    particleAttributes.randomness.push(Math.random() );
+    particleAttributes.speedX.push(Math.random()*5 - 2.5 );
+    particleAttributes.speedY.push(Math.random()*5 - 2.5 );
+    particleAttributes.rotation.push(Math.random() - 0.5);
+  }
+
+  particleGroup.position.y = 50;
+  sepScene.add(particleGroup);
+
+  camera.position.set(0,150,400);
+  camera.lookAt(sepScene.position);  
 
   renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer:false, alpha: true, antialias:false, precision: "highp"});
   renderer.setSize(window.innerWidth, window.innerHeight);
   //renderer.autoClear = false;
-
+  console.log(particleGroup.children[0]);
 
   container.appendChild(renderer.domElement);
 
@@ -394,13 +460,99 @@ function render(){
   inc ++;
 
   reposShader.uniforms.time.value = inc;
-
+  var pickOne = Math.random();
 
   if(video.readyState === video.HAVE_ENOUGH_DATA){
     videoImageContext.drawImage(video,0,0);
     if(videoTexture){
       videoTexture.needsUpdate = true;
       updatePos = true;
+    }
+  }
+
+
+  for ( var c = 0; c < particleGroup.children.length; c ++ ) {
+    var sprite = particleGroup.children[ c ];
+
+    /*
+    var a = particleAttributes.randomness[c] + 1;
+    var pulseFactor = Math.sin(a * time) * 2.1 + 0.9;
+    sprite.position.x = particleAttributes.startPosition[c].x * pulseFactor;
+    sprite.position.y = particleAttributes.startPosition[c].y * pulseFactor;
+    sprite.position.z = particleAttributes.startPosition[c].z * pulseFactor;  
+    */
+
+    sprite.position.x += particleAttributes.speedX[c];
+    sprite.position.y += particleAttributes.speedY[c];
+    sprite.position.z = particleAttributes.startPosition[c].z; 
+    sprite.material.rotation +=  particleAttributes.rotation[c] * 0.05; 
+
+
+
+
+    if(sprite.position.x > window.innerWidth/2 + particleAttributes.startSize[c]){
+      if(leftEye != undefined && updatePos){
+        if(pickOne <0.5){
+          sprite.position.x = leftEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y = window.innerHeight/2 - leftEye[1]*scaleBy -50 ;
+          //console.log(leftEye[0]);
+        } else if(pickOne >=0.5){
+          sprite.position.x = rightEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y =window.innerHeight/2 - rightEye[1]*scaleBy -50;
+        }
+      } else{
+        sprite.position.x = -window.innerWidth/2 - particleAttributes.startSize[c];
+        sprite.position.y = Math.random()*window.innerHeight - window.innerHeight/2;
+      }
+    }
+
+    if(sprite.position.x < -window.innerWidth/2 - particleAttributes.startSize[c]){
+      if(leftEye != undefined && updatePos){
+        if(pickOne <0.5){
+          sprite.position.x = leftEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y = window.innerHeight/2 - leftEye[1]*scaleBy -50 ;
+          //console.log(leftEye[0]);
+        } else if(pickOne >=0.5){
+          sprite.position.x = rightEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y =window.innerHeight/2 - rightEye[1]*scaleBy -50;
+        }
+      } else{
+      sprite.position.x = window.innerWidth/2 + particleAttributes.startSize[c];
+      sprite.position.y = Math.random()*window.innerHeight - window.innerHeight/2;
+      }
+    }
+
+    if(sprite.position.y  > window.innerHeight/2 + particleAttributes.startSize[c]){
+
+      if(leftEye != undefined && updatePos){
+        if(pickOne <0.5){
+          sprite.position.x = leftEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y = window.innerHeight/2 - leftEye[1]*scaleBy -50 ;
+          //console.log(leftEye[0]);
+        } else if(pickOne >=0.5){
+          sprite.position.x = rightEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y =window.innerHeight/2 - rightEye[1]*scaleBy -50;
+        }
+      } else{
+      sprite.position.y = -window.innerHeight/2 - 100;// particleAttributes.startSize[c];
+      sprite.position.x = Math.random()*window.innerWidth - window.innerWidth/2;
+      }
+    }
+
+    if(sprite.position.y < -window.innerHeight/2 - 100){// particleAttributes.startSize[c]){
+     if(leftEye != undefined && updatePos){
+        if(pickOne <0.5){
+          sprite.position.x = leftEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y = window.innerHeight/2 - leftEye[1]*scaleBy  -50;
+          //console.log(leftEye[0]);
+        } else if(pickOne >=0.5){
+          sprite.position.x = rightEye[0]*scaleBy - window.innerWidth/2 ;
+          sprite.position.y =window.innerHeight/2 - rightEye[1]*scaleBy -50;
+        }
+      } else{
+      sprite.position.y = window.innerHeight/2 + particleAttributes.startSize[c];
+      sprite.position.x = Math.random()*window.innerWidth - window.innerWidth/2;
+      }
     }
   }
 
@@ -425,7 +577,8 @@ function render(){
 
   renderer.render(scene5, orthoCamera);
   */
-renderer.render(camScene, orthoCamera);
+//renderer.render(camScene, orthoCamera);
+renderer.render(sepScene, orthoCamera);
 
 
   window.requestAnimationFrame(render);

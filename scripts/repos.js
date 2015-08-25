@@ -42,13 +42,12 @@ var reposShader;
 var diffShader;
 var colorShader;
 
-
 var scene1, scene2, scene3, scene4, scene5, webScene;
-
 var rtt, tex1, tex2, tex3, diffTex;
 
 
 function init(){
+  /*
   var soundFile = document.createElement("audio");
   soundFile.preload = "auto";
   var sndSrc = document.createElement("source");
@@ -57,13 +56,14 @@ function init(){
 
   soundFile.load();
   soundFile.play();
+  */
   //initWebcam();
 
   video = document.createElement( 'video');
-  video.src = "images/allOne.mp4";
+  video.src = "images/allOneAudio.mp4";
   video.load();
   video.play();
-  video.volume = 0.0;
+  video.volume = 1.0;
 
   videoImage = document.createElement('canvas');
   videoImage.width = 1280;
