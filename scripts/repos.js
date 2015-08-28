@@ -47,7 +47,7 @@ var rtt, tex1, tex2, tex3, diffTex;
 
 
 function init(){
-  /*
+  
   var soundFile = document.createElement("audio");
   soundFile.preload = "auto";
   var sndSrc = document.createElement("source");
@@ -55,19 +55,21 @@ function init(){
   soundFile.appendChild(sndSrc);
 
   soundFile.load();
-  soundFile.play();
-  */
+  
+  
   //initWebcam();
 
   video = document.createElement( 'video');
-  video.src = "images/allOneAudio.mp4";
+  video.src = "images/allOneSmallCompress.mp4";
   video.load();
   video.play();
-  video.volume = 1.0;
+  soundFile.play();
+  
+  video.volume = 0.0;
 
   videoImage = document.createElement('canvas');
-  videoImage.width = 1280;
-  videoImage.height = 720;
+  videoImage.width = 640;
+  videoImage.height = 360;
 
   videoImageContext = videoImage.getContext('2d');
 
