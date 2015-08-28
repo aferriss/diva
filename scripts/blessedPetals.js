@@ -228,7 +228,12 @@ function loadPetals(){
   }
 
    //drawPetals();
-   init();
+   var available = webglAvailable();
+  if(!available){
+  init();
+  } else{
+    alert("You need webgl to view this site! Try http://get.webgl.org/")
+  }
 }
 
 
@@ -631,9 +636,21 @@ function initWebcam(){
     }
  
     function videoError(e) {
-      alert('Error' + error.code);
+      alert("Something seems to be wrong with your webcam...");
     }
   });
+}
+
+function webglAvailable() {
+    try {
+        var canvas = document.createElement("testcanvas");
+        return !!
+            window.WebGLRenderingContext && 
+            (canvas.getContext("webgl") || 
+                canvas.getContext("experimental-webgl"));
+    } catch(e) { 
+        return false;
+    } 
 }
 
 

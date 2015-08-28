@@ -6,11 +6,20 @@ var video = document.createElement('video');
 video.width = w;
 video.height = h;
 var time = 0;
+var soundFile;
 
 var container, scene, screenScene, thirdScene, renderer, camera, plane, shader, blurShader, shader2, tex, tex2, videoTexture, videoImage, videoImageContext;
 //var time = Date.now();
 
 function init(){
+  soundFile = document.createElement("audio");
+  soundFile.preload = "auto";
+  var sndSrc = document.createElement("source");
+  sndSrc.src = "tracks/infiniteGradient.mp3";
+  soundFile.appendChild(sndSrc);
+
+  soundFile.load();
+
   scene = new THREE.Scene();
   screenScene = new THREE.Scene();
   thirdScene = new THREE.Scene();
@@ -99,7 +108,12 @@ function render(){
 }
 
 
+var available = webglAvailable();
+if(!available){
 init();
+} else{
+  alert("You need webgl to view this site! Try http://get.webgl.org/")
+}
 
   window.addEventListener('DOMContentLoaded', function(){
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
@@ -115,14 +129,8 @@ init();
         //video.src = window.URL.createObjectURL(stream);
         videoLoaded = true;
 
-        var soundFile = document.createElement("audio");
-        soundFile.preload = "auto";
-        var sndSrc = document.createElement("source");
-        sndSrc.src = "tracks/infiniteGradient.mp3";
-        soundFile.appendChild(sndSrc);
 
-        soundFile.load();
-        //soundFile.play();
+        soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");
         webcamMsg.style.display = "none";
@@ -130,8 +138,20 @@ init();
     }
  
     function videoError(e) {
-      alert('Error' + error.code);
+      alert("Something seems to be wrong with your webcam...");
     }
-  })
+  });
+
+function webglAvailable() {
+    try {
+        var canvas = document.createElement("testcanvas");
+        return !!
+            window.WebGLRenderingContext && 
+            (canvas.getContext("webgl") || 
+                canvas.getContext("experimental-webgl"));
+    } catch(e) { 
+        return false;
+    } 
+}
 
 //container.appendChild(video);

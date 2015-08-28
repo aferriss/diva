@@ -26,8 +26,16 @@ var planeMaterial;
 var combineShader, fs2;
 var sepTex;
 var inc = 0;
+var soundFile;
 
 function init(){
+  soundFile = document.createElement("audio");
+  soundFile.preload = "auto";
+  var sndSrc = document.createElement("source");
+  sndSrc.src = "tracks/lite.mp3";
+  soundFile.appendChild(sndSrc);
+
+  soundFile.load();
   
   initWebcam();
   camScene = new THREE.Scene();
@@ -220,7 +228,12 @@ function onWindowResize() {
 
 }
 
+var available = webglAvailable();
+if(!available){
 init();
+} else{
+  alert("You need webgl to view this site! Try http://get.webgl.org/")
+}
 
 
 function initWebcam(){
@@ -237,13 +250,7 @@ function initWebcam(){
         video.play();
         videoLoaded = true;
 
-        var soundFile = document.createElement("audio");
-        soundFile.preload = "auto";
-        var sndSrc = document.createElement("source");
-        sndSrc.src = "tracks/lite.mp3";
-        soundFile.appendChild(sndSrc);
 
-        soundFile.load();
         soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");
@@ -252,9 +259,21 @@ function initWebcam(){
     }
  
     function videoError(e) {
-      alert('Error' + error.code);
+      alert("Something seems to be wrong with your webcam...");
     }
   });
+}
+
+function webglAvailable() {
+    try {
+        var canvas = document.createElement("testcanvas");
+        return !!
+            window.WebGLRenderingContext && 
+            (canvas.getContext("webgl") || 
+                canvas.getContext("experimental-webgl"));
+    } catch(e) { 
+        return false;
+    } 
 }
 
 //container.appendChild(video);

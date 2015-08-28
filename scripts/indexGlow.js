@@ -3,8 +3,8 @@ var h = window.innerHeight;
 var container = document.getElementById("container");
 var videoLoaded = false;
 var video = document.createElement('video');
-video.width = w;
-video.height = h;
+video.width = 512;
+video.height = 512;
 var time = 0;
 
 var container, scene, camScene, diffScene, fbScene, renderer, camera, orthoCamera, plane, skyBox, shader, diffShader, fbShader, blurShader, shader2, tex, fbTex, sceneTex, prevFrame, videoTexture, videoImage, videoImageContext;
@@ -22,6 +22,7 @@ var gates = [];
 var planes = [];
 var gate;
 var gatesLoaded = false;
+var venusLoaded = false;
 var camMouseX = 0;
 var camMouseY = 0;
 var bloomTex;
@@ -32,19 +33,10 @@ var threeDRttTex;
 var box;
 var fbEqShader;
 var sineShader;
-var soundFile;
 
 function init(){
-  soundFile = document.createElement("audio");
-  soundFile.preload = "auto";
-  var sndSrc = document.createElement("source");
-  sndSrc.src = "tracks/doorsToYialmel.mp3";
-  soundFile.appendChild(sndSrc);
-
-  soundFile.load();
-
-
-  initWebcam();
+  
+  //initWebcam();
 
   scene = new THREE.Scene();
   camScene = new THREE.Scene();
@@ -58,9 +50,9 @@ function init(){
   threeDRttScene = new THREE.Scene();
 
   orthoCamera = new THREE.OrthographicCamera( w/-2, w/2, h/2, h/-2, -10000, 10000);
-  camera = new THREE.PerspectiveCamera(120, w/h, 0.1,4000000);
+  camera = new THREE.PerspectiveCamera(45, w/h, 0.1,4000000);
 
-  camera.position.set(0,150,0);
+  camera.position.set(0,350,600);
   scene.add(camera);
 
   camScene.add(orthoCamera);
@@ -73,24 +65,33 @@ function init(){
   bloomScene.add(orthoCamera);
   threeDRttScene.add(orthoCamera);
 
+  var texSize = 512;
 
-  tex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  prevFrame = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  sceneTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  fbTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  diffTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  adds = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  addsRtt = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  blurHTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  blurVTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  glowTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  bloomTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  threeDRtt = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  threeDRttTex = new THREE.WebGLRenderTarget(w, h, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  tex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  prevFrame = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  sceneTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  fbTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  diffTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  adds = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  addsRtt = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  blurHTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  blurVTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  glowTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  bloomTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  threeDRtt = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  threeDRttTex = new THREE.WebGLRenderTarget(texSize, texSize, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
 
-  videoTexture = new THREE.Texture( video );
+  bloomTex.wrapS = bloomTex.wrapT = THREE.RepeatWrapping;
+  bloomTex.repeat.set( 1, 1 );
+
+  //videoTexture = new THREE.Texture( video );
+  var divaHeart = new THREE.ImageUtils.loadTexture('images/heartMask.jpg');
+  videoTexture = new THREE.ImageUtils.loadTexture('images/diva.jpg');
+     
   videoTexture.minFilter = THREE.LinearFilter;
+
+
 
   shader = new THREE.ShaderMaterial({
     uniforms: {
@@ -128,8 +129,8 @@ function init(){
   glowShader = new THREE.ShaderMaterial({
     uniforms:{
       srcTex: {type: 't', value: videoTexture},
-      step: {type: 'v2', value: new THREE.Vector2(30.0/window.innerWidth, 30.0/window.innerHeight)},
-      time: {type: 'f', value: time }
+      step: {type: 'v2', value: new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight)},
+      time: {type: 'f', value: time * 0.125 }
     },
     vertexShader: document.getElementById('vertexShader').textContent,
     fragmentShader: document.getElementById('glowFrag').textContent
@@ -159,7 +160,8 @@ function init(){
   bloomShader = new THREE.ShaderMaterial({
     uniforms:{
       srcTex: {type: 't', value: videoTexture},
-      blurTex: {type: 't', value: blurVTex}
+      blurTex: {type: 't', value: blurVTex},
+      heartTex: {type: 't', value: divaHeart},
     },
     vertexShader: document.getElementById('vertexShader').textContent,
     fragmentShader: document.getElementById('bloom').textContent
@@ -188,12 +190,12 @@ function init(){
 console.log(fbEqShader);
   semShader = new THREE.ShaderMaterial({
     uniforms:{
-      tex: {type: 't', value: THREE.ImageUtils.loadTexture('images/ramp.png')},
+      tex: {type: 't', value: THREE.ImageUtils.loadTexture('images/gold1.jpg')},
       tNormal: {type: 't', value: THREE.ImageUtils.loadTexture('images/2563-normalLight.jpg')},
       repeat: { type: 'v2', value: new THREE.Vector2(1,1) },
       useNormal: {type: 'f', value: 1 },
       useRim: {type: 'f', value: 1.0},
-      rimPower: {type: 'f', value: 0.95},
+      rimPower: {type: 'f', value: 2.95},
       normalScale: {type: 'f', value: 1.05 },
       normalRepeat: {type: 'f', value: 2.0}
     },
@@ -231,29 +233,31 @@ console.log(fbEqShader);
   threeDRttScene.add(quad);
 
 
-  var ambientLight = new THREE.AmbientLight( 0x000000 );
-  scene.add( ambientLight );
+  var urlPrefix = "images/sky/";
+  var urls = [urlPrefix + "posX.png", 
+              urlPrefix + "negX.png", 
+              urlPrefix + "posY.png", 
+              urlPrefix + "negY.png", 
+              urlPrefix + "negZ.png", 
+              urlPrefix + "posZ.png" 
+  ];
 
-  var lights = [];
-  lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
-  lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
-  lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
-  
-  lights[0].position.set( 0, 200, 0 );
-  lights[1].position.set( 100, 200, 100 );
-  lights[2].position.set( -100, -200, -100 );
+  var materialArray = [];
+  for(var i =0 ; i<6; i++){
+    materialArray.push(new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture(urls[i]), side: THREE.BackSide }));
+  }
 
-  scene.add( lights[0] );
-  scene.add( lights[1] );
-  scene.add( lights[2] );
+  var skyMat = new THREE.MeshFaceMaterial(materialArray);
 
-  //var boxMat = new THREE.MeshBasicMaterial({map:threeDRttTex, side:THREE.DoubleSide});
+
+  var boxMat = new THREE.MeshBasicMaterial({map:bloomTex});
   var sg = new THREE.BoxGeometry( 10000, 10000, 10000 );
-  box = new THREE.Mesh(sg, fbEqShader);
+  box = new THREE.Mesh(sg, skyMat);
   box.scale.set(100,100,100);
   box.position.set(0,0,0);
-  scene.add(box);
-  loadGate();
+  //scene.add(box);
+  //loadGate();
+  //loadVenus();
   /*
   //the differencing scene
   quad = new THREE.Mesh(screenGeometry, diffShader);
@@ -305,7 +309,73 @@ console.log(fbEqShader);
 
 function loadGate(){
   var loader = new THREE.JSONLoader();
-  loader.load('models/gate7k.js', function (result){
+  loader.load('models/sibenik.js', function (result){
+    assignUVs(result);
+    /*
+    result.verticesNeedUpdate = true;
+    result.normalsNeedUpdate = true;
+    result.uvsNeedUpdate = true;
+    result.computeFaceNormals();
+    result.computeVertexNormals();
+    result.computeMorphNormals();
+    result.computeTangents();
+  */
+    
+    
+    console.log(result);
+    var baseMat = new THREE.MeshBasicMaterial({map:bloomTex, side:THREE.DoubleSide});
+    for(var i = 0; i< 1; i++){
+      gate = new THREE.Mesh(result, baseMat);
+
+      gates.push(gate);
+      gates[i].scale.set(80,80,80);
+      gates[i].position.set(0,0,-100);
+      gates[i].rotation.y = 90 * Math.PI/180;
+      //gates[i].rotation.z = 90 * Math.PI/180;
+
+      //var plane = new THREE.PlaneGeometry(150,300);
+      //var planeMesh = new THREE.Mesh(plane, sineShader);
+      //planes.push(planeMesh);
+      //planes[i].position.set(0,105,0);
+      //planes[i].scale.set(30,30,30);
+
+      //scene.add(planes[i]);
+      scene.add(gates[0]);
+    }
+
+
+
+
+    //gates[0].rotation.y = 0;
+    //gates[0].position.z -= 250;
+    //planes[0].position.z -= 170;
+
+    /*
+    gates[1].rotation.y = 90 * Math.PI/180;
+    gates[1].position.x -=250;
+    planes[1].rotation.y = 90 * Math.PI/180;
+    planes[1].position.x -= 170;
+
+    gates[2].rotation.y = 180 * Math.PI/180;
+    gates[2].position.z += 250;
+    planes[2].rotation.y = 180 * Math.PI/180;
+    planes[2].position.z += 170;
+
+    gates[3].rotation.y = 270 * Math.PI/180;
+    gates[3].position.x += 250;
+    planes[3].rotation.y = 270 * Math.PI/180;
+    planes[3].position.x += 170;
+  */
+
+    gatesLoaded = true;
+  });
+}
+
+var venus;
+
+function loadVenus(){
+  var loader = new THREE.JSONLoader();
+  loader.load('models/venus7k.js', function (result){
     assignUVs(result);
     result.verticesNeedUpdate = true;
     result.normalsNeedUpdate = true;
@@ -318,48 +388,42 @@ function loadGate(){
     
     
     console.log(result);
-    var baseMat = new THREE.MeshBasicMaterial({map:videoTexture});
-    for(var i = 0; i< 4; i++){
-      gate = new THREE.Mesh(result, semShader);
-      gates.push(gate);
-      gates[i].scale.set(3,3,3);
-      gates[i].position.set(0,0,0);
-      //gates[i].rotation.z = 90 * Math.PI/180;
 
-      var plane = new THREE.PlaneGeometry(150,300);
-      var planeMesh = new THREE.Mesh(plane, sineShader);
-      planes.push(planeMesh);
-      planes[i].position.set(0,105,0);
-      //planes[i].scale.set(30,30,30);
+    var baseMat = new THREE.MeshBasicMaterial({map:bloomTex, side:THREE.DoubleSide});
+    for(var i = 0; i< 1; i++){
+      venus = new THREE.Mesh(result, baseMat);
+      venus.scale.set(30,30,30);
+      venus.position.set(0,290,-1400);
+      venus.rotation.y = 90 * Math.PI/180;
 
-      scene.add(planes[i]);
-      scene.add(gates[i]);
+      scene.add(venus);
     }
 
 
 
 
-    gates[0].rotation.y = 0;
-    gates[0].position.z -= 150;
-    planes[0].position.z -= 170;
+    //gates[0].rotation.y = 0;
+    //gates[0].position.z -= 250;
+    //planes[0].position.z -= 170;
 
+    /*
     gates[1].rotation.y = 90 * Math.PI/180;
-    gates[1].position.x -=150;
+    gates[1].position.x -=250;
     planes[1].rotation.y = 90 * Math.PI/180;
     planes[1].position.x -= 170;
 
     gates[2].rotation.y = 180 * Math.PI/180;
-    gates[2].position.z += 150;
+    gates[2].position.z += 250;
     planes[2].rotation.y = 180 * Math.PI/180;
     planes[2].position.z += 170;
 
     gates[3].rotation.y = 270 * Math.PI/180;
-    gates[3].position.x += 150;
+    gates[3].position.x += 250;
     planes[3].rotation.y = 270 * Math.PI/180;
     planes[3].position.x += 170;
+  */
 
-
-    gatesLoaded = true;
+    venusLoaded = true;
   });
 }
 
@@ -369,11 +433,23 @@ function render(){
 
   sineShader.uniforms.time.value = time;
 
-  box.rotation.x = time*0.0625;
-  box.rotation.y = time*0.125;
+  //box.rotation.x = time*0.0625;
+  //box.rotation.y = time*0.125;
+
+  if(gatesLoaded && venusLoaded){
+     //gates[0].rotation.y = time*0.5;
+    //gates[1].rotation.y = time*0.05;
+    //gates[2].rotation.y = time*0.05;
+    //gates[3].rotation.y = time*0.05;
+
+    venus.rotation.y = time*0.05;
+  }
   //camera.position.x += (camMouseX - camera.position.x) * .0005;
   camera.rotation.y -= (camMouseX - camera.position.x) * .00001;
-  camera.rotation.x -= (-camMouseY - camera.position.y) * .00001;
+  camera.rotation.y = Math.max(-20*Math.PI/180, Math.min(camera.rotation.y, 20 * Math.PI/180));
+
+  camera.rotation.x += (-camMouseY - camera.position.y) * .00001;
+  camera.rotation.x = Math.max(0*Math.PI/180, Math.min(camera.rotation.x, 45 * Math.PI/180));
   //camera.position.z += (- camMouseY - camera.position.y) * .0005;
   //camera.rotation.y += 0.005;
   //camera.lookAt(new THREE.Vector3(0,-50,0));
@@ -393,7 +469,7 @@ function render(){
   shader.uniforms.time.value = time;
 
   glowShader.uniforms.srcTex.value = videoTexture;
-  glowShader.uniforms.time.value = time;
+  glowShader.uniforms.time.value = time*0.5;
 
   //render diff scene to tex
   //renderer.render(diffScene, orthoCamera, tex, true);
@@ -412,9 +488,9 @@ function render(){
   renderer.render(diffScene, orthoCamera);
   */
 
-/*
-  blurHShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
-  blurVShader.uniforms.step.value = new THREE.Vector2(1.0/window.innerWidth, 1.0/window.innerHeight);
+
+  blurHShader.uniforms.step.value = new THREE.Vector2(1./window.innerWidth, 1./window.innerHeight);
+  blurVShader.uniforms.step.value = new THREE.Vector2(1./window.innerWidth, 1./window.innerHeight);
 
   renderer.render(camScene, orthoCamera, glowTex);
 
@@ -423,12 +499,12 @@ function render(){
   renderer.render(blurHScene, orthoCamera, blurHTex);
   renderer.render(blurVScene, orthoCamera, blurVTex);
 
-  blurHShader.uniforms.srcTex.value = blurVTex;
+  //blurHShader.uniforms.srcTex.value = blurVTex;
 
-  blurHShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
-  blurVShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
+  //blurHShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
+  //blurVShader.uniforms.step.value = new THREE.Vector2(3.0/window.innerWidth, 3.0/window.innerHeight);
 
-
+  /*
   for(var i = 0; i<3; i++){
     renderer.render(blurHScene, orthoCamera, blurHTex);
     renderer.render(blurVScene, orthoCamera, blurVTex);
@@ -436,11 +512,11 @@ function render(){
   */
 //renderer.render(blurVScene, orthoCamera);
 
-  renderer.render(bloomScene, orthoCamera, bloomTex);
+  renderer.render(bloomScene, orthoCamera);
 
-  renderer.render(scene, camera, threeDRtt);
-  renderer.render(threeDRttScene, orthoCamera, threeDRttTex);
-  renderer.render(scene, camera);
+  //renderer.render(scene, camera, threeDRtt);
+  //renderer.render(threeDRttScene, orthoCamera, threeDRttTex);
+  //renderer.render(scene, camera);
 
 
   window.requestAnimationFrame(render);
@@ -483,7 +559,7 @@ function onDocumentMouseMove( event ) {
   mouseY = ( event.clientY  );
 
   camMouseX = (event.clientX - window.innerWidth/2) * 1;
-  camMouseY = (event.clientY - window.innerHeight/2) * 1;
+  camMouseY = (event.clientY - window.innerHeight/2) * 5;
 
 }
 
@@ -499,6 +575,7 @@ function onWindowResize() {
   renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
+
 
 var available = webglAvailable();
 if(!available){
@@ -521,14 +598,14 @@ function initWebcam(){
         video.play();
         //video.src = window.URL.createObjectURL(stream);
         videoLoaded = true;
-        soundFile.play();
     }
  
     function videoError(e) {
-      alert('Error' + error.code);
+      alert("Something seems to be wrong with your webcam...");
     }
   });
 }
+
 
 function webglAvailable() {
     try {
@@ -541,5 +618,6 @@ function webglAvailable() {
         return false;
     } 
 }
+
 
 //container.appendChild(video);

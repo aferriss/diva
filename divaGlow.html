@@ -1,293 +1,16 @@
+
 <html>
 <head>
-<title>Divinity in Thee</title>
-<link rel="stylesheet" type="text/css" href="diva.css">
-<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans' rel='stylesheet' type='text/css'>
+	<title>Going Deep</title>
+	<link rel="stylesheet" type="text/css" href="diva.css">
 
-<style>
-	body{
-		padding: 0px;
-		margin: 0px;
-		/*
-		background-image: url("images/diva.jpg");
-		-webkit-background-size: cover;
-		-moz-background-size: cover;
-		-o-background-size: cover;
-		background-size: cover;
-		*/
-		//font-family: arial;
-		font-family: 'Alegreya Sans', sans-serif;
-		color: white;
-		font-size: 14px;
-	}
-
-	p{
-		margin-top: 0px;
-		margin-bottom: 0px;
-	}
-
-	a:link {
-	    color: #FF0000;
-	    text-decoration: none;
-	}
-
-	a:visited {
-	    color: #00FF00;
-	}
-
-	a:hover {
-	    color: #FF00FF;
-	}
-
-	a:active {
-	    color: #0000FF;
-	}
-
-	#heart{
-		//position: absolute;
-		padding-top: 15%;
-		margin-left: auto;
-		margin-right: auto;
-		width: 150px;
-		height: 150px;
-		text-align: center;
-		display: block;
-		cursor: hand;
-		
-	}
-
-	#heart:hover{
-		cursor: hand;
-	}
-
-
-	#instructions{
-		color: white;
-		
-		width: 350px;
-		padding: 20 20 20 20px;
-		font-size: 14px;
-		position: absolute;
-		top: 0px;
-
-	}
-	#about{
-		padding: 20 20 20 20px;
-		display: inline;
-	
-		bottom: 0px;
-		position: absolute;
-		
-		
-		color: white;
-		width: 350px;
-		/*
-		text-align: right;
-		*/
-	}
-
-	#trackList{
-
-		text-align: left !important;
-		
-		display: inline;
-		float: left;
-		//width: 100%;
-		bottom: 95px;
-		position: absolute;
-		//padding-bottom: 170px;
-	}
-
-	.track{
-		/*
-		//margin-bottom:0px;
-		//padding: 0;
-		*/
-		padding: 0 0px 0px 20px;
-
-	}
-
-	#buttonBox{
-		width: 100%;
-		left: 0;
-		right: 0;
-		bottom: 50px;
-		position: absolute;
-		text-align: center;
-		font-size: 18px;
-		z-index: 10;
-	}
-
-	#aboutButton{
-		padding: 0 20 0 20px ;
-		cursor: hand;
-	}
-
-	#text{
-		padding: 0 0 0 20px;
-		width: 320px;
-		position: absolute;
-		bottom: 145px;
-	}
-
-	#trackListButton{
-		padding: 0 0px 0 20px;
-		display: inline;
-		float: left;
-		text-align: right;
-	}
-
-	#trackListButton:hover{
-	}
-
-	#instructionsButton{
-		padding: 0 0 0 20px;
-		cursor: hand;
-		display: inline;
-		float: left;
-		
-	}
-
-	#header{
-		color: pink;
-		padding: 0 0 20 0px;
-		font-size: 18px;
-	}
-
-	#container{
-		position: absolute;
-		top: 0px;
-		left: 0px
-		display:inline;
-		z-index: -1;
-	}
-
-	#title{
-		color: rgba(255,255,255,0.5);
-		font-size: 80;
-		font-size: 7vw;
-		left:0;
-		right: 0;
-		text-align: center;
-		width: 100%;
-		text-shadow: 0px 0px 10px #fff;
-		display: none; 
-	}
-
-	#pink{
-		color:pink;
-	}
-</style>
 </head>
 <body>
-<script src="scripts/jquery-1.11.2.js"></script>
-<script type="text/javascript">
-	var urls = [
-		"divinityInThee.html",
-		"allOne.html",
-		"mutantNights.html",
-		"satori.html",
-		"goingDeep.html",
-		"lite.html",
-		"infiniteGradient.html",
-		"cosmicChandelier.html",
-		"blessed.html",
-		"doorsToYialmel.html"
-	];
-
-
-	$(document).ready(function(){
-		
-		$("#text").hide();
-		//$("#about").hide();
-		$("#trackList").hide();
-
-		$("#instructionsButton").click(function(){
-			$("#trackList").fadeOut('fast');
-			//$("#about").hide('fast');
-			//$("#about").hide('fast');
-			$("#text").fadeToggle('fast');
-		});
-
-		$("#aboutButton").click(function(){
-			$("#trackList").hide('fast');
-			$("#instructions").hide('fast');
-			$("#about").slideToggle('fast');
-		});
-		
-		$("#trackListButton").click(function(){
-			//$("#about").hide('fast');
-			//$("#about").hide('fast');
-			$("#text").fadeOut('fast');
-			$("#trackList").fadeToggle('fast');
-		});
-		
-		$("#heart").click(function(){
-			var rand = Math.floor(Math.random()*8);
-			document.location.href = urls[rand];
-		});
-	});
-
-</script>
-
-<div id="container">
-	<canvas id="canvas"></canvas>
-</div>
-
-<div id="title">D I V I N I T Y  &nbsp;&nbsp;&nbsp; I N &nbsp;&nbsp;&nbsp;  T H E E</div>
-<img src="images/heartTransparent.png" id="heart" />
-
-<div id="buttonBox">
-	<div id="instructionsButton">ABOUT</div>
-	<div id="trackListButton">TRACKLIST</div>
-</div>
-
-
-<div id="instructions">
-	<div id="header">
-		WELCOME TO THE DIVINITY IN THEE DIVINATION SYSTEM
+	<div id="container">
+		<canvas id="canvas"></canvas>
 	</div>
-	CENTER YOURSELF IN PRESENT AWARENESS <br />
-	THINK OF A QUESTION OR SIMPLY RESONATE YOUR BEING <br />
-	CLICK ON DIVA&#39;S <span id="pink">HEART</span><br />
-	LET THE FOLLOWING EXPERIENCE GUIDE YOU
+
 	
-	<br /><br /><br /><br /><br /><br />
-
-</div>
-
-<!--<div id="aboutButton">ABOUT</div>-->
-<div id="text">
-	<p>
-		THIS SYSTEM UTILIZES ARCHETYPES WITHIN THE DIVINITY IN THEE LP AS WELL AS INTERACTIVE VISUAL EXPERIENCE TO AID THE SEEKER. <br /><br /> EACH INDIVIDUAL SONG PROGRAM OFFERS GUIDANCE BY ILLUMINATING AN ASPECT OF YOUR INTER-DIMENSIONAL DIVINE BEING.
-	</p>
-</div>
-
-<div id="about">
-	<!--
-	<p>
-		THIS SYSTEM UTILIZES ARCHETYPES WITHIN THE DIVINITY IN THEE LP AS WELL AS INTERACTIVE VISUAL EXPERIENCE TO AID THE SEEKER. <br /><br /> EACH INDIVIDUAL SONG PROGRAM OFFERS GUIDANCE BY ILLUMINATING AN ASPECT OF YOUR INTER-DIMENSIONAL DIVINE BEING.
-	</p>
-	-->
-	<a href="https://www.stonesthrow.com/store/album/diva/divinity-in-thee">AVAILABLE ON STONES THROW RECORDS</a>
-</div>
-
-
-<div id="trackList">
-	<p class="track"><a href="satori.html">SATORI</a></p>
-	<p class="track"><a href="divinityInThee.html">DIVINITY IN THEE</a></p>
-	<p class="track"><a href="blessed.html">BLESSED</a></p>
-	<p class="track"><a href="lite.html">LITE</a></p>
-	<p class="track"><a href="goingDeep.html">GOING DEEP</a></p>
-	<p class="track"><a href="doorsToYialmel.html">DOORS TO YIALMEL</a></p>
-	<p class="track"><a href="allOne.html">ALL ONE</a></p>
-	<p class="track"><a href="mutantNights.html">MUTANT NIGHTS</a></p>
-	<p class="track"><a href="infiniteGradient.html">INFINITE GRADIENT</a></p>
-	<p class="track"><a href="cosmicChandelier.html">COSMIC CHANDELIER</a></p>
-</div>
-
-
-
 	<script id="vertexShader" type="x-shader/x-vertex">
 		varying vec2 v_texCoord;
 
@@ -499,7 +222,6 @@ vec4 colormap(float x) {
 
 	<script id="glowFrag" type="x-shader/x-fragment">
 	uniform sampler2D srcTex;
-
 	uniform vec2 step;
 	uniform float time;
 
@@ -562,8 +284,7 @@ vec4 colormap(float x) {
 		vec4 glowTex = texture2D(srcTex, uv);
 		
 		// sine wave on the blue channel
-		glowTex += vec4(g+0.5, clamp((g*0.5)*(sin(time*3.0)/2.0 + 0.0), 0.0,1.0), g+ ((sin(time*3.0)/2.0 + 0.5)*0.15), 1.0);
-		//glowTex += vec4(g+0.5, 0.0, g+(sin(time*2.0)/2.0 + 0.5), 1.0);
+		glowTex += vec4(g+0.25, (g*0.5)*(sin(time*2.0)/2.0 + 0.3), g*(sin(time*2.0)/2.0 + 0.5), 1.0);
 
 		gl_FragColor = glowTex;
 	}
@@ -679,13 +400,9 @@ vec4 colormap(float x) {
 	<script id="bloom" type="x-shader/x-fragment">
 		uniform sampler2D srcTex;
 		uniform sampler2D blurTex;
-		uniform sampler2D heartTex;
 
 		varying vec2 v_texCoord;
 
-		float luma(vec3 color) {
-			return dot(color.rgb, vec3(0.299, 0.587, 0.114));
-		}
 
 		void main(){
 
@@ -693,20 +410,12 @@ vec4 colormap(float x) {
 
 			vec3 camColor = texture2D(srcTex, uv).rgb;
 			vec3 blurColor = texture2D(blurTex, uv).rgb;
-			vec3 heartColor = texture2D(heartTex, uv).rgb;
 
 			float avg = dot(blurColor, vec3(1.0))/3.0;
 
 			//mix the cam and the blur according to the blur's avg brightness
 			//not sure if this is the right way to do this
-			vec3 bloom = mix(camColor, blurColor, clamp(avg*3.5, 0.0, 1.0));
-
-			//if(heartColor.g == 1.0){
-			//	bloom 
-			//}
-			float mask = luma(heartColor);
-
-			bloom = mix(camColor, bloom*1.2, mask);
+			vec3 bloom = mix(camColor, blurColor, clamp(avg*2.5, 0.0, 1.0));
 
 			gl_FragColor = vec4(bloom, 1.0);
 		}
@@ -774,7 +483,7 @@ vec4 colormap(float x) {
 
 	</script>
 
-	<script type="x-shader/x-vertex" id="semVert">
+		<script type="x-shader/x-vertex" id="semVert">
 	attribute vec4 tangent;
 
 	uniform vec2 repeat;
@@ -888,9 +597,7 @@ vec4 colormap(float x) {
 	<script src="scripts/three.js"></script>
 	<script src="scripts/TessellateModifier.js"></script>
 
-	<!--<script src="scripts/jquery-1.11.2.js"></script>-->
-	<script src="scripts/indexGlow.js"></script>
-
-
+	<script src="scripts/jquery-1.11.2.js"></script>
+	<script src="scripts/divaGlow.js"></script>
 </body>
 </html>

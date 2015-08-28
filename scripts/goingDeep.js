@@ -14,8 +14,16 @@ var mouseX, mouseY;
 var box, quad;
 var diffTex, adds, addsRtt;
 var diffRttScene, afterDiffScene;
+var soundFile;
 
 function init(){
+  soundFile = document.createElement("audio");
+  soundFile.preload = "auto";
+  var sndSrc = document.createElement("source");
+  sndSrc.src = "tracks/goingDeep.mp3";
+  soundFile.appendChild(sndSrc);
+
+  soundFile.load();
   initWebcam();
 
   scene = new THREE.Scene();
@@ -190,7 +198,12 @@ function onWindowResize() {
 
 }
 
+var available = webglAvailable();
+if(!available){
 init();
+} else{
+  alert("You need webgl to view this site! Try http://get.webgl.org/")
+}
 
 function initWebcam(){
   window.addEventListener('DOMContentLoaded', function(){
@@ -207,13 +220,7 @@ function initWebcam(){
         //video.src = window.URL.createObjectURL(stream);
         videoLoaded = true;
 
-        var soundFile = document.createElement("audio");
-        soundFile.preload = "auto";
-        var sndSrc = document.createElement("source");
-        sndSrc.src = "tracks/goingDeep.mp3";
-        soundFile.appendChild(sndSrc);
 
-        soundFile.load();
         soundFile.play();
 
         var webcamMsg = document.getElementById("enableWebcam");
@@ -222,9 +229,21 @@ function initWebcam(){
     }
  
     function videoError(e) {
-      alert('Error' + error.code);
+      alert("Something seems to be wrong with your webcam...");
     }
   });
+}
+
+function webglAvailable() {
+    try {
+        var canvas = document.createElement("testcanvas");
+        return !!
+            window.WebGLRenderingContext && 
+            (canvas.getContext("webgl") || 
+                canvas.getContext("experimental-webgl"));
+    } catch(e) { 
+        return false;
+    } 
 }
 
 //container.appendChild(video);
